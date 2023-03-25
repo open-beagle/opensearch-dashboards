@@ -1,0 +1,21 @@
+#
+# ** THIS IS AN AUTO-GENERATED FILE **
+#
+
+# Default OpenSearch Dashboards configuration for docker target
+server.name: opensearch-dashboards
+# server.host: "0"
+opensearch.hosts: [ "https://opensearch.wodcloud.com/opensearch/database" ]
+# i18n.locale: "zh-CN"
+opensearchDashboards.branding:
+  # logo:
+  #   defaultUrl: ""
+  #   darkModeUrl: ""
+  # mark:
+  #   defaultUrl: ""
+  #   darkModeUrl: ""
+  # loadingLogo: 
+  #   defaultUrl: ""
+  #   darkModeUrl: ""
+  # faviconUrl: ""
+  applicationTitle: "日志服务"

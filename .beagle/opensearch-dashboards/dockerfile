@@ -1,0 +1,87 @@
+ARG BASE
+
+FROM ${BASE}
+
+ARG AUTHOR
+ARG VERSION
+ARG TARGETARCH
+ARG TARGEVERSION
+
+RUN for iter in {1..10}; do \
+      apt update -y && \
+      apt install -y \
+        curl fontconfig libfreetype6 libvshadow-utils libnss3  && \
+      apt clean all && exit_code=0 && break || exit_code=$? && echo "apt error: retry $iter in 10s" && \
+      sleep 10; \
+    done; \
+    (exit $exit_code)
+
+# Add an init process, check the checksum to make sure it's a match
+COPY build/dumb-init/dumb-init-linux-${TARGETARCH}-v1.2.5 /usr/local/bin/dumb-init
+RUN chmod +x /usr/local/bin/dumb-init
+
+RUN mkdir /usr/share/fonts/local
+# RUN curl -L -o /usr/share/fonts/local/NotoSansCJK-Regular.ttc https://github.com/googlefonts/noto-cjk/raw/NotoSansV2.001/NotoSansCJK-Regular.ttc
+RUN curl -L -o /usr/share/fonts/local/NotoSansCJK-Regular.ttc https://cache.wodcloud.com/vscode/opensearch/googlefonts/NotoSansV2.001/NotoSansCJK-Regular.ttc
+RUN echo "5dcd1c336cc9344cb77c03a0cd8982ca8a7dc97d620fd6c9c434e02dcb1ceeb3  /usr/share/fonts/local/NotoSansCJK-Regular.ttc" | sha256sum -c -
+RUN fc-cache -v
+
+# Bring in OpenSearch Dashboards from the initial stage.
+COPY --chown=1000:1000 build/opensearch-dashboards-$TARGEVERSION-linux-${TARGETARCH} /usr/share/opensearch-dashboards
+WORKDIR /usr/share/opensearch-dashboards
+RUN ln -s /usr/share/opensearch-dashboards /opt/opensearch-dashboards
+
+ENV OPENSEARCH_CONTAINER true
+ENV PATH=/usr/share/opensearch-dashboards/bin:$PATH
+
+# Set some OpenSearch Dashboards configuration defaults.
+COPY --chown=1000:1000 config/opensearch_dashboards.yml /usr/share/opensearch-dashboards/config/opensearch_dashboards.yml
+
+# Add the launcher/wrapper script. It knows how to interpret environment
+# variables and translate them to OpenSearch Dashboards CLI options.
+COPY --chown=1000:1000 .beagle/opensearch-dashboards/bin/opensearch-dashboards-docker /usr/local/bin/
+
+# Ensure gid 0 write permissions for OpenShift.
+# RUN chmod g+ws /usr/share/opensearch-dashboards && \
+#     find /usr/share/opensearch-dashboards -gid 0 -and -not -perm /g+w -exec chmod g+w {} \;
+
+# Remove the suid bit everywhere to mitigate "Stack Clash"
+# RUN find / -xdev -perm -4000 -exec chmod u-s {} +
+
+# Provide a non-root user to run the process.
+RUN groupadd --gid 1000 opensearch-dashboards && \
+    useradd --uid 1000 --gid 1000 \
+      --home-dir /usr/share/opensearch-dashboards --no-create-home \
+      opensearch-dashboards
+
+# add plugins
+RUN /usr/share/opensearch-dashboards/bin/opensearch-dashboards-plugin install https://cache.wodcloud.com/vscode/opensearch/plugins/index-management-dashboards-1.3.5.0.zip
+
+ARG BUILD_DATE
+ARG BUILD_REVISION
+
+LABEL org.label-schema.build-date=${BUILD_DATE} \
+  org.label-schema.license="ASL 2.0" \
+  org.label-schema.name="OpenSearch Dashboards" \
+  org.label-schema.schema-version="1.0" \
+  org.label-schema.url="https://www.opensearch.org/" \
+  org.label-schema.usage="https://www.opensearch.org/" \
+  org.label-schema.vcs-ref=${BUILD_REVISION} \
+  org.label-schema.vcs-url="https://github.com/opensearch-project/OpenSearch-Dashboards" \
+  org.label-schema.vendor="OpenSearch" \
+  org.label-schema.version=${TARGETVERSION} \
+  org.opencontainers.image.created=${BUILD_DATE} \
+  org.opencontainers.image.documentation="https://www.opensearch.org/" \
+  org.opencontainers.image.licenses="ASL 2.0" \
+  org.opencontainers.image.revision=${BUILD_REVISION} \
+  org.opencontainers.image.source="https://github.com/opensearch-project/OpenSearch-Dashboards" \
+  org.opencontainers.image.title="OpenSearch Dashboards" \
+  org.opencontainers.image.url="https://www.opensearch.org/" \
+  org.opencontainers.image.vendor="OpenSearch" \
+  org.opencontainers.image.version=${TARGETVERSION}
+
+USER opensearch-dashboards
+
+ENTRYPOINT ["/usr/local/bin/dumb-init", "--"]
+
+CMD ["/usr/local/bin/opensearch-dashboards-docker"]

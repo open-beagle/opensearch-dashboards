@@ -1,0 +1,19 @@
+ARG BASE
+
+FROM ${BASE}
+
+ARG AUTHOR
+ARG VERSION
+
+LABEL maintainer=${AUTHOR} version=${VERSION}
+
+COPY ./.beagle/opensearch-dashboards-build/install.sh /tmp/install.sh
+
+RUN apt update -y && \
+apt install -y curl git && \
+bash /tmp/install.sh && \
+apt clean
+
+ENV NODEPATH=/usr/local/lib/node-v10.24.1
+ENV YARNPATH=/usr/local/lib/yarn-v1.22.10
+ENV PATH=$YARNPATH/bin:$NODEPATH/bin:/opt/bin:$PATH

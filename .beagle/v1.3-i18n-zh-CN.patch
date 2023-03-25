@@ -1,0 +1,777 @@
+From b4bafbd36dad04cd0f199cbecd9539bb72e127ae Mon Sep 17 00:00:00 2001
+From: shucheng <shucheng@bd-apaas.com>
+Date: Tue, 6 Sep 2022 13:25:28 +0800
+Subject: [PATCH] v1.3-i18n-zh-CN
+
+---
+ config/opensearch_dashboards.yml              |  4 +--
+ src/core/public/i18n/i18n_eui_mapping.tsx     | 24 ++++++-------
+ .../field_formats/converters/duration.ts      | 36 +++++++++----------
+ .../common/search/aggs/buckets/date_range.ts  |  2 +-
+ .../data/public/ui/filter_bar/filter_bar.tsx  |  2 +-
+ .../ui/filter_bar/filter_editor/index.tsx     | 12 +++----
+ .../data/public/ui/filter_bar/filter_item.tsx |  2 +-
+ .../public/ui/filter_bar/filter_options.tsx   | 20 +++++------
+ .../query_string_input/language_switcher.tsx  | 17 ++++-----
+ .../saved_query_management_component.tsx      |  8 ++---
+ src/plugins/data/server/ui_settings.ts        | 20 +++++------
+ .../angular/directives/no_results.js          |  9 +++--
+ .../sidebar/discover_field_search.tsx         | 14 ++++----
+ .../components/sidebar/discover_sidebar.tsx   |  4 +--
+ .../application/components/lib/durations.js   |  2 +-
+ .../components/lib/get_interval.js            |  2 +-
+ 16 files changed, 87 insertions(+), 91 deletions(-)
+
+diff --git a/config/opensearch_dashboards.yml b/config/opensearch_dashboards.yml
+index 26c11904fa..b2c44e9b8a 100644
+--- a/config/opensearch_dashboards.yml
++++ b/config/opensearch_dashboards.yml
+@@ -149,7 +149,7 @@
+ # ]
+ #vis_type_timeline.graphiteBlockedIPs: []
+ 
+-# opensearchDashboards.branding:
++opensearchDashboards.branding:
+   # logo:
+     # defaultUrl: ""
+     # darkModeUrl: ""
+@@ -160,7 +160,7 @@
+     # defaultUrl: ""
+     # darkModeUrl: ""
+   # faviconUrl: ""
+-  # applicationTitle: ""
++  applicationTitle: "日志服务"
+ 
+ # Set the value of this setting to true to capture region blocked warnings and errors 
+ # for your map rendering services.
+diff --git a/src/core/public/i18n/i18n_eui_mapping.tsx b/src/core/public/i18n/i18n_eui_mapping.tsx
+index fbba580783..365b8bca6b 100644
+--- a/src/core/public/i18n/i18n_eui_mapping.tsx
++++ b/src/core/public/i18n/i18n_eui_mapping.tsx
+@@ -243,7 +243,7 @@ export const getEuiContextMapping = () => {
+         description: 'ARIA label, `children` is the human-friendly value of an option',
+       }),
+     'euiCommonlyUsedTimeRanges.legend': i18n.translate('core.euiCommonlyUsedTimeRanges.legend', {
+-      defaultMessage: 'Commonly used',
++      defaultMessage: '常用选项',
+     }),
+     'euiDataGrid.screenReaderNotice': i18n.translate('core.euiDataGrid.screenReaderNotice', {
+       defaultMessage: 'Cell contains interactive content.',
+@@ -383,7 +383,7 @@ export const getEuiContextMapping = () => {
+       }
+     ),
+     'euiQuickSelect.applyButton': i18n.translate('core.euiQuickSelect.applyButton', {
+-      defaultMessage: 'Apply',
++      defaultMessage: '应用',
+     }),
+     'euiQuickSelect.fullDescription': ({ timeTense, timeValue, timeUnit }: EuiValues) =>
+       i18n.translate('core.euiQuickSelect.fullDescription', {
+@@ -400,7 +400,7 @@ export const getEuiContextMapping = () => {
+       defaultMessage: 'Previous time window',
+     }),
+     'euiQuickSelect.quickSelectTitle': i18n.translate('core.euiQuickSelect.quickSelectTitle', {
+-      defaultMessage: 'Quick select',
++      defaultMessage: '快速选择',
+     }),
+     'euiQuickSelect.tenseLabel': i18n.translate('core.euiQuickSelect.tenseLabel', {
+       defaultMessage: 'Time tense',
+@@ -417,13 +417,13 @@ export const getEuiContextMapping = () => {
+         values: { optionValue, optionText },
+       }),
+     'euiRefreshInterval.legend': i18n.translate('core.euiRefreshInterval.legend', {
+-      defaultMessage: 'Refresh every',
++      defaultMessage: '更新设置',
+     }),
+     'euiRefreshInterval.start': i18n.translate('core.euiRefreshInterval.start', {
+-      defaultMessage: 'Start',
++      defaultMessage: '开始',
+     }),
+     'euiRefreshInterval.stop': i18n.translate('core.euiRefreshInterval.stop', {
+-      defaultMessage: 'Stop',
++      defaultMessage: '结束',
+     }),
+     'euiRelativeTab.fullDescription': ({ unit }: EuiValues) =>
+       i18n.translate('core.euiRelativeTab.fullDescription', {
+@@ -437,7 +437,7 @@ export const getEuiContextMapping = () => {
+       }),
+     'euiRelativeTab.roundingLabel': ({ unit }: EuiValues) =>
+       i18n.translate('core.euiRelativeTab.roundingLabel', {
+-        defaultMessage: 'Round to the {unit}',
++        defaultMessage: '四舍五入到 {unit}',
+         values: { unit },
+       }),
+     'euiRelativeTab.unitInputLabel': i18n.translate('core.euiRelativeTab.unitInputLabel', {
+@@ -510,7 +510,7 @@ export const getEuiContextMapping = () => {
+     'euiSuperDatePicker.showDatesButtonLabel': i18n.translate(
+       'core.euiSuperDatePicker.showDatesButtonLabel',
+       {
+-        defaultMessage: 'Show dates',
++        defaultMessage: '时间选择器',
+         description: 'Displayed in a button that shows date picker',
+       }
+     ),
+@@ -535,28 +535,28 @@ export const getEuiContextMapping = () => {
+     'euiSuperUpdateButton.clickToApplyTooltip': i18n.translate(
+       'core.euiSuperUpdateButton.clickToApplyTooltip',
+       {
+-        defaultMessage: 'Click to apply',
++        defaultMessage: '点击按钮应用更改',
+         description: "Displayed in a tooltip when there are changes that haven't been applied",
+       }
+     ),
+     'euiSuperUpdateButton.refreshButtonLabel': i18n.translate(
+       'core.euiSuperUpdateButton.refreshButtonLabel',
+       {
+-        defaultMessage: 'Refresh',
++        defaultMessage: '更新',
+         description: 'Displayed in a button that refreshes based on date picked',
+       }
+     ),
+     'euiSuperUpdateButton.updatingButtonLabel': i18n.translate(
+       'core.euiSuperUpdateButton.updatingButtonLabel',
+       {
+-        defaultMessage: 'Updating',
++        defaultMessage: '更新',
+         description: 'Displayed in a button that refreshes when updates are happening',
+       }
+     ),
+     'euiSuperUpdateButton.updateButtonLabel': i18n.translate(
+       'core.euiSuperUpdateButton.updateButtonLabel',
+       {
+-        defaultMessage: 'Update',
++        defaultMessage: '更新',
+         description: 'Displayed in a button that updates based on date picked',
+       }
+     ),
+diff --git a/src/plugins/data/common/field_formats/converters/duration.ts b/src/plugins/data/common/field_formats/converters/duration.ts
+index 5a11e90a55..77129c1181 100644
+--- a/src/plugins/data/common/field_formats/converters/duration.ts
++++ b/src/plugins/data/common/field_formats/converters/duration.ts
+@@ -45,7 +45,7 @@ const HUMAN_FRIENDLY = 'humanize';
+ const DEFAULT_OUTPUT_PRECISION = 2;
+ const DEFAULT_INPUT_FORMAT = {
+   text: i18n.translate('data.fieldFormats.duration.inputFormats.seconds', {
+-    defaultMessage: 'Seconds',
++    defaultMessage: '妙',
+   }),
+   kind: 'seconds',
+ };
+@@ -58,56 +58,56 @@ const inputFormats = [
+   },
+   {
+     text: i18n.translate('data.fieldFormats.duration.inputFormats.nanoseconds', {
+-      defaultMessage: 'Nanoseconds',
++      defaultMessage: '纳米秒',
+     }),
+     kind: 'nanoseconds',
+   },
+   {
+     text: i18n.translate('data.fieldFormats.duration.inputFormats.microseconds', {
+-      defaultMessage: 'Microseconds',
++      defaultMessage: '微秒',
+     }),
+     kind: 'microseconds',
+   },
+   {
+     text: i18n.translate('data.fieldFormats.duration.inputFormats.milliseconds', {
+-      defaultMessage: 'Milliseconds',
++      defaultMessage: '毫秒',
+     }),
+     kind: 'milliseconds',
+   },
+   { ...DEFAULT_INPUT_FORMAT },
+   {
+     text: i18n.translate('data.fieldFormats.duration.inputFormats.minutes', {
+-      defaultMessage: 'Minutes',
++      defaultMessage: '分钟',
+     }),
+     kind: 'minutes',
+   },
+   {
+     text: i18n.translate('data.fieldFormats.duration.inputFormats.hours', {
+-      defaultMessage: 'Hours',
++      defaultMessage: '小时',
+     }),
+     kind: 'hours',
+   },
+   {
+     text: i18n.translate('data.fieldFormats.duration.inputFormats.days', {
+-      defaultMessage: 'Days',
++      defaultMessage: '天',
+     }),
+     kind: 'days',
+   },
+   {
+     text: i18n.translate('data.fieldFormats.duration.inputFormats.weeks', {
+-      defaultMessage: 'Weeks',
++      defaultMessage: '星期',
+     }),
+     kind: 'weeks',
+   },
+   {
+     text: i18n.translate('data.fieldFormats.duration.inputFormats.months', {
+-      defaultMessage: 'Months',
++      defaultMessage: '月',
+     }),
+     kind: 'months',
+   },
+   {
+     text: i18n.translate('data.fieldFormats.duration.inputFormats.years', {
+-      defaultMessage: 'Years',
++      defaultMessage: '年',
+     }),
+     kind: 'years',
+   },
+@@ -122,49 +122,49 @@ const outputFormats = [
+   { ...DEFAULT_OUTPUT_FORMAT },
+   {
+     text: i18n.translate('data.fieldFormats.duration.outputFormats.asMilliseconds', {
+-      defaultMessage: 'Milliseconds',
++      defaultMessage: '毫秒',
+     }),
+     method: 'asMilliseconds',
+   },
+   {
+     text: i18n.translate('data.fieldFormats.duration.outputFormats.asSeconds', {
+-      defaultMessage: 'Seconds',
++      defaultMessage: '秒',
+     }),
+     method: 'asSeconds',
+   },
+   {
+     text: i18n.translate('data.fieldFormats.duration.outputFormats.asMinutes', {
+-      defaultMessage: 'Minutes',
++      defaultMessage: '分钟',
+     }),
+     method: 'asMinutes',
+   },
+   {
+     text: i18n.translate('data.fieldFormats.duration.outputFormats.asHours', {
+-      defaultMessage: 'Hours',
++      defaultMessage: '小时',
+     }),
+     method: 'asHours',
+   },
+   {
+     text: i18n.translate('data.fieldFormats.duration.outputFormats.asDays', {
+-      defaultMessage: 'Days',
++      defaultMessage: '天',
+     }),
+     method: 'asDays',
+   },
+   {
+     text: i18n.translate('data.fieldFormats.duration.outputFormats.asWeeks', {
+-      defaultMessage: 'Weeks',
++      defaultMessage: '星期',
+     }),
+     method: 'asWeeks',
+   },
+   {
+     text: i18n.translate('data.fieldFormats.duration.outputFormats.asMonths', {
+-      defaultMessage: 'Months',
++      defaultMessage: '月',
+     }),
+     method: 'asMonths',
+   },
+   {
+     text: i18n.translate('data.fieldFormats.duration.outputFormats.asYears', {
+-      defaultMessage: 'Years',
++      defaultMessage: '年',
+     }),
+     method: 'asYears',
+   },
+diff --git a/src/plugins/data/common/search/aggs/buckets/date_range.ts b/src/plugins/data/common/search/aggs/buckets/date_range.ts
+index 557ff650af..0502bafb34 100644
+--- a/src/plugins/data/common/search/aggs/buckets/date_range.ts
++++ b/src/plugins/data/common/search/aggs/buckets/date_range.ts
+@@ -43,7 +43,7 @@ import { OSD_FIELD_TYPES } from '../../../osd_field_types/types';
+ import { BaseAggParams } from '../types';
+ 
+ const dateRangeTitle = i18n.translate('data.search.aggs.buckets.dateRangeTitle', {
+-  defaultMessage: 'Date Range',
++  defaultMessage: '时间选择器',
+ });
+ 
+ export interface DateRangeBucketAggDependencies {
+diff --git a/src/plugins/data/public/ui/filter_bar/filter_bar.tsx b/src/plugins/data/public/ui/filter_bar/filter_bar.tsx
+index 1ecea0442f..8dc07c1317 100644
+--- a/src/plugins/data/public/ui/filter_bar/filter_bar.tsx
++++ b/src/plugins/data/public/ui/filter_bar/filter_bar.tsx
+@@ -118,7 +118,7 @@ function FilterBarUI(props: Props) {
+         +{' '}
+         <FormattedMessage
+           id="data.filter.filterBar.addFilterButtonLabel"
+-          defaultMessage="Add filter"
++          defaultMessage="增加过滤器"
+         />
+       </EuiButtonEmpty>
+     );
+diff --git a/src/plugins/data/public/ui/filter_bar/filter_editor/index.tsx b/src/plugins/data/public/ui/filter_bar/filter_editor/index.tsx
+index 4fa7b6d1c3..c75c95bcc6 100644
+--- a/src/plugins/data/public/ui/filter_bar/filter_editor/index.tsx
++++ b/src/plugins/data/public/ui/filter_bar/filter_editor/index.tsx
+@@ -114,7 +114,7 @@ class FilterEditorUI extends Component<Props, State> {
+             <EuiFlexItem>
+               <FormattedMessage
+                 id="data.filter.filterEditor.editFilterPopupTitle"
+-                defaultMessage="Edit filter"
++                defaultMessage="编辑过滤器"
+               />
+             </EuiFlexItem>
+             <EuiFlexItem grow={false} className="filterEditor__hiddenItem" />
+@@ -127,12 +127,12 @@ class FilterEditorUI extends Component<Props, State> {
+                 {this.state.isCustomEditorOpen ? (
+                   <FormattedMessage
+                     id="data.filter.filterEditor.editFilterValuesButtonLabel"
+-                    defaultMessage="Edit filter values"
++                    defaultMessage="使用过滤器与值"
+                   />
+                 ) : (
+                   <FormattedMessage
+                     id="data.filter.filterEditor.editQueryDslButtonLabel"
+-                    defaultMessage="Edit as Query DSL"
++                    defaultMessage="使用DSL查询语句"
+                   />
+                 )}
+               </EuiButtonEmpty>
+@@ -153,7 +153,7 @@ class FilterEditorUI extends Component<Props, State> {
+               data-test-subj="createCustomLabel"
+               label={this.props.intl.formatMessage({
+                 id: 'data.filter.filterEditor.createCustomLabelSwitchLabel',
+-                defaultMessage: 'Create custom label?',
++                defaultMessage: '创建自定义标签?',
+               })}
+               checked={this.state.useCustomLabel}
+               onChange={this.onCustomLabelSwitchChange}
+@@ -190,7 +190,7 @@ class FilterEditorUI extends Component<Props, State> {
+                 >
+                   <FormattedMessage
+                     id="data.filter.filterEditor.saveButtonLabel"
+-                    defaultMessage="Save"
++                    defaultMessage="保存"
+                   />
+                 </EuiButton>
+               </EuiFlexItem>
+@@ -202,7 +202,7 @@ class FilterEditorUI extends Component<Props, State> {
+                 >
+                   <FormattedMessage
+                     id="data.filter.filterEditor.cancelButtonLabel"
+-                    defaultMessage="Cancel"
++                    defaultMessage="取消"
+                   />
+                 </EuiButtonEmpty>
+               </EuiFlexItem>
+diff --git a/src/plugins/data/public/ui/filter_bar/filter_item.tsx b/src/plugins/data/public/ui/filter_bar/filter_item.tsx
+index 805958d2be..2bdfa1a829 100644
+--- a/src/plugins/data/public/ui/filter_bar/filter_item.tsx
++++ b/src/plugins/data/public/ui/filter_bar/filter_item.tsx
+@@ -185,7 +185,7 @@ export function FilterItem(props: Props) {
+           {
+             name: props.intl.formatMessage({
+               id: 'data.filter.filterBar.editFilterButtonLabel',
+-              defaultMessage: 'Edit filter',
++              defaultMessage: '编辑过滤器',
+             }),
+             icon: 'pencil',
+             panel: 1,
+diff --git a/src/plugins/data/public/ui/filter_bar/filter_options.tsx b/src/plugins/data/public/ui/filter_bar/filter_options.tsx
+index aaa90cd027..185cca60f1 100644
+--- a/src/plugins/data/public/ui/filter_bar/filter_options.tsx
++++ b/src/plugins/data/public/ui/filter_bar/filter_options.tsx
+@@ -72,7 +72,7 @@ class FilterOptionsUI extends Component<Props, State> {
+         {
+           name: this.props.intl.formatMessage({
+             id: 'data.filter.options.enableAllFiltersButtonLabel',
+-            defaultMessage: 'Enable all',
++            defaultMessage: '全部启用',
+           }),
+           icon: 'eye',
+           onClick: () => {
+@@ -84,7 +84,7 @@ class FilterOptionsUI extends Component<Props, State> {
+         {
+           name: this.props.intl.formatMessage({
+             id: 'data.filter.options.disableAllFiltersButtonLabel',
+-            defaultMessage: 'Disable all',
++            defaultMessage: '全部禁用',
+           }),
+           icon: 'eyeClosed',
+           onClick: () => {
+@@ -96,7 +96,7 @@ class FilterOptionsUI extends Component<Props, State> {
+         {
+           name: this.props.intl.formatMessage({
+             id: 'data.filter.options.pinAllFiltersButtonLabel',
+-            defaultMessage: 'Pin all',
++            defaultMessage: '全部固定',
+           }),
+           icon: 'pin',
+           onClick: () => {
+@@ -108,7 +108,7 @@ class FilterOptionsUI extends Component<Props, State> {
+         {
+           name: this.props.intl.formatMessage({
+             id: 'data.filter.options.unpinAllFiltersButtonLabel',
+-            defaultMessage: 'Unpin all',
++            defaultMessage: '解除全部固定',
+           }),
+           icon: 'pin',
+           onClick: () => {
+@@ -120,7 +120,7 @@ class FilterOptionsUI extends Component<Props, State> {
+         {
+           name: this.props.intl.formatMessage({
+             id: 'data.filter.options.invertNegatedFiltersButtonLabel',
+-            defaultMessage: 'Invert inclusion',
++            defaultMessage: '反转 设置',
+           }),
+           icon: 'invert',
+           onClick: () => {
+@@ -132,7 +132,7 @@ class FilterOptionsUI extends Component<Props, State> {
+         {
+           name: this.props.intl.formatMessage({
+             id: 'data.filter.options.invertDisabledFiltersButtonLabel',
+-            defaultMessage: 'Invert enabled/disabled',
++            defaultMessage: '反转 开启/关闭',
+           }),
+           icon: 'eye',
+           onClick: () => {
+@@ -144,7 +144,7 @@ class FilterOptionsUI extends Component<Props, State> {
+         {
+           name: this.props.intl.formatMessage({
+             id: 'data.filter.options.deleteAllFiltersButtonLabel',
+-            defaultMessage: 'Remove all',
++            defaultMessage: '全部移除',
+           }),
+           icon: 'trash',
+           onClick: () => {
+@@ -168,11 +168,11 @@ class FilterOptionsUI extends Component<Props, State> {
+             iconType="filter"
+             aria-label={this.props.intl.formatMessage({
+               id: 'data.filter.options.changeAllFiltersButtonLabel',
+-              defaultMessage: 'Change all filters',
++              defaultMessage: '设置所有过滤器',
+             })}
+             title={this.props.intl.formatMessage({
+               id: 'data.filter.options.changeAllFiltersButtonLabel',
+-              defaultMessage: 'Change all filters',
++              defaultMessage: '设置所有过滤器',
+             })}
+             data-test-subj="showFilterActions"
+           />
+@@ -185,7 +185,7 @@ class FilterOptionsUI extends Component<Props, State> {
+         <EuiPopoverTitle>
+           <FormattedMessage
+             id="data.filter.searchBar.changeAllFiltersTitle"
+-            defaultMessage="Change all filters"
++            defaultMessage="设置所有过滤器"
+           />
+         </EuiPopoverTitle>
+         <EuiContextMenu initialPanelId={0} panels={[panelTree]} />
+diff --git a/src/plugins/data/public/ui/query_string_input/language_switcher.tsx b/src/plugins/data/public/ui/query_string_input/language_switcher.tsx
+index c764a568ba..056233f8a0 100644
+--- a/src/plugins/data/public/ui/query_string_input/language_switcher.tsx
++++ b/src/plugins/data/public/ui/query_string_input/language_switcher.tsx
+@@ -63,10 +63,7 @@ export function QueryLanguageSwitcher(props: Props) {
+     <FormattedMessage id="data.query.queryBar.dqlLanguageName" defaultMessage="DQL" />
+   );
+   const dqlFullName = (
+-    <FormattedMessage
+-      id="data.query.queryBar.dqlFullLanguageName"
+-      defaultMessage="OpenSearch Dashboards Query Language"
+-    />
++    <FormattedMessage id="data.query.queryBar.dqlFullLanguageName" defaultMessage="DQL语法" />
+   );
+ 
+   const button = (
+@@ -95,7 +92,7 @@ export function QueryLanguageSwitcher(props: Props) {
+       <EuiPopoverTitle>
+         <FormattedMessage
+           id="data.query.queryBar.syntaxOptionsTitle"
+-          defaultMessage="Syntax options"
++          defaultMessage="语法选项设置"
+         />
+       </EuiPopoverTitle>
+       <div style={{ width: '350px' }}>
+@@ -103,9 +100,9 @@ export function QueryLanguageSwitcher(props: Props) {
+           <p>
+             <FormattedMessage
+               id="data.query.queryBar.syntaxOptionsDescription"
+-              defaultMessage="The {docsLink} (DQL) offers a simplified query
+-              syntax and support for scripted fields. If you turn off DQL,
+-              OpenSearch Dashboards uses Lucene."
++              defaultMessage="DQL 提供了一个简化的查询
++              语法和对脚本字段的支持。如果关闭 DQL。
++              则使用 Lucene语法。"
+               values={{
+                 docsLink: (
+                   <EuiLink href={osdDQLDocs} target="_blank">
+@@ -126,9 +123,9 @@ export function QueryLanguageSwitcher(props: Props) {
+               name="popswitch"
+               label={
+                 props.language === 'kuery' ? (
+-                  <FormattedMessage id="data.query.queryBar.dqlOnLabel" defaultMessage="On" />
++                  <FormattedMessage id="data.query.queryBar.dqlOnLabel" defaultMessage="开启" />
+                 ) : (
+-                  <FormattedMessage id="data.query.queryBar.dqlOffLabel" defaultMessage="Off" />
++                  <FormattedMessage id="data.query.queryBar.dqlOffLabel" defaultMessage="关闭" />
+                 )
+               }
+               checked={props.language === 'kuery'}
+diff --git a/src/plugins/data/public/ui/saved_query_management/saved_query_management_component.tsx b/src/plugins/data/public/ui/saved_query_management/saved_query_management_component.tsx
+index f0dbb9262a..f9b19de81b 100644
+--- a/src/plugins/data/public/ui/saved_query_management/saved_query_management_component.tsx
++++ b/src/plugins/data/public/ui/saved_query_management/saved_query_management_component.tsx
+@@ -150,13 +150,13 @@ export function SavedQueryManagementComponent({
+   const savedQueryDescriptionText = i18n.translate(
+     'data.search.searchBar.savedQueryDescriptionText',
+     {
+-      defaultMessage: 'Save query text and filters that you want to use again.',
++      defaultMessage: '如果想要继续追踪问题，请保存查询内容与过滤条件.',
+     }
+   );
+ 
+   const noSavedQueriesDescriptionText =
+     i18n.translate('data.search.searchBar.savedQueryNoSavedQueriesText', {
+-      defaultMessage: 'There are no saved queries.',
++      defaultMessage: '未找到已保存的查询条件.',
+     }) +
+     ' ' +
+     savedQueryDescriptionText;
+@@ -164,7 +164,7 @@ export function SavedQueryManagementComponent({
+   const savedQueryPopoverTitleText = i18n.translate(
+     'data.search.searchBar.savedQueryPopoverTitleText',
+     {
+-      defaultMessage: 'Saved Queries',
++      defaultMessage: '已保存的查询',
+     }
+   );
+ 
+@@ -326,7 +326,7 @@ export function SavedQueryManagementComponent({
+                     data-test-subj="saved-query-management-save-button"
+                   >
+                     {i18n.translate('data.search.searchBar.savedQueryPopoverSaveButtonText', {
+-                      defaultMessage: 'Save current query',
++                      defaultMessage: '保存当前查询',
+                     })}
+                   </EuiButton>
+                 </EuiFlexItem>
+diff --git a/src/plugins/data/server/ui_settings.ts b/src/plugins/data/server/ui_settings.ts
+index 2fa00db3f0..253272ff48 100644
+--- a/src/plugins/data/server/ui_settings.ts
++++ b/src/plugins/data/server/ui_settings.ts
+@@ -562,70 +562,70 @@ export function getUiSettings(): Record<string, UiSettingsParams<unknown>> {
+             from: 'now/d',
+             to: 'now/d',
+             display: i18n.translate('data.advancedSettings.timepicker.today', {
+-              defaultMessage: 'Today',
++              defaultMessage: '今天',
+             }),
+           },
+           {
+             from: 'now/w',
+             to: 'now/w',
+             display: i18n.translate('data.advancedSettings.timepicker.thisWeek', {
+-              defaultMessage: 'This week',
++              defaultMessage: '本周',
+             }),
+           },
+           {
+             from: 'now-15m',
+             to: 'now',
+             display: i18n.translate('data.advancedSettings.timepicker.last15Minutes', {
+-              defaultMessage: 'Last 15 minutes',
++              defaultMessage: '最近 15 分钟',
+             }),
+           },
+           {
+             from: 'now-30m',
+             to: 'now',
+             display: i18n.translate('data.advancedSettings.timepicker.last30Minutes', {
+-              defaultMessage: 'Last 30 minutes',
++              defaultMessage: '最近 30 分钟',
+             }),
+           },
+           {
+             from: 'now-1h',
+             to: 'now',
+             display: i18n.translate('data.advancedSettings.timepicker.last1Hour', {
+-              defaultMessage: 'Last 1 hour',
++              defaultMessage: '最近 1 小时',
+             }),
+           },
+           {
+             from: 'now-24h',
+             to: 'now',
+             display: i18n.translate('data.advancedSettings.timepicker.last24Hours', {
+-              defaultMessage: 'Last 24 hours',
++              defaultMessage: '最近 24 小时',
+             }),
+           },
+           {
+             from: 'now-7d',
+             to: 'now',
+             display: i18n.translate('data.advancedSettings.timepicker.last7Days', {
+-              defaultMessage: 'Last 7 days',
++              defaultMessage: '最近 7 天',
+             }),
+           },
+           {
+             from: 'now-30d',
+             to: 'now',
+             display: i18n.translate('data.advancedSettings.timepicker.last30Days', {
+-              defaultMessage: 'Last 30 days',
++              defaultMessage: '最近 30 天',
+             }),
+           },
+           {
+             from: 'now-90d',
+             to: 'now',
+             display: i18n.translate('data.advancedSettings.timepicker.last90Days', {
+-              defaultMessage: 'Last 90 days',
++              defaultMessage: '最近 90 天',
+             }),
+           },
+           {
+             from: 'now-1y',
+             to: 'now',
+             display: i18n.translate('data.advancedSettings.timepicker.last1Year', {
+-              defaultMessage: 'Last 1 year',
++              defaultMessage: '最近 1 年',
+             }),
+           },
+         ],
+diff --git a/src/plugins/discover/public/application/angular/directives/no_results.js b/src/plugins/discover/public/application/angular/directives/no_results.js
+index 07b7a6e011..65ac79efc2 100644
+--- a/src/plugins/discover/public/application/angular/directives/no_results.js
++++ b/src/plugins/discover/public/application/angular/directives/no_results.js
+@@ -67,16 +67,15 @@ export class DiscoverNoResults extends Component {
+             <h2 data-test-subj="discoverNoResultsTimefilter">
+               <FormattedMessage
+                 id="discover.noResults.expandYourTimeRangeTitle"
+-                defaultMessage="Expand your time range"
++                defaultMessage="调整时间范围"
+               />
+             </h2>
+ 
+             <p>
+               <FormattedMessage
+                 id="discover.noResults.queryMayNotMatchTitle"
+-                defaultMessage="One or more of the indices you&rsquo;re looking at contains a date field. Your query may
+-                  not match anything in the current time range, or there may not be any data at all in
+-                  the currently selected time range. You can try changing the time range to one which contains data."
++                defaultMessage="你正在查看的一个或多个索引包含一个日期字段。你的查询可能与当前时间范围内的所有内容不匹配，
++                或者在当前选择的时间范围内根本没有任何数据。你可以尝试改变时间范围，改为包含数据的范围。"
+               />
+             </p>
+           </EuiText>
+@@ -209,7 +208,7 @@ export class DiscoverNoResults extends Component {
+                 title={
+                   <FormattedMessage
+                     id="discover.noResults.searchExamples.noResultsMatchSearchCriteriaTitle"
+-                    defaultMessage="No results match your search criteria"
++                    defaultMessage="没有符合搜索条件的结果."
+                   />
+                 }
+                 color="warning"
+diff --git a/src/plugins/discover/public/application/components/sidebar/discover_field_search.tsx b/src/plugins/discover/public/application/components/sidebar/discover_field_search.tsx
+index 55e6e4a8d3..d32b29eeb6 100644
+--- a/src/plugins/discover/public/application/components/sidebar/discover_field_search.tsx
++++ b/src/plugins/discover/public/application/components/sidebar/discover_field_search.tsx
+@@ -84,19 +84,19 @@ export function DiscoverFieldSearch({ onChange, value, types }: Props) {
+     defaultMessage: 'Search field names',
+   });
+   const aggregatableLabel = i18n.translate('discover.fieldChooser.filter.aggregatableLabel', {
+-    defaultMessage: 'Aggregatable',
++    defaultMessage: '可聚合的',
+   });
+   const searchableLabel = i18n.translate('discover.fieldChooser.filter.searchableLabel', {
+-    defaultMessage: 'Searchable',
++    defaultMessage: '可搜索的',
+   });
+   const typeLabel = i18n.translate('discover.fieldChooser.filter.typeLabel', {
+-    defaultMessage: 'Type',
++    defaultMessage: '类型',
+   });
+   const typeOptions = types
+     ? types.map((type) => {
+         return { value: type, text: type };
+       })
+-    : [{ value: 'any', text: 'any' }];
++    : [{ value: 'any', text: '任意' }];
+ 
+   const [activeFiltersCount, setActiveFiltersCount] = useState(0);
+   const [isPopoverOpen, setPopoverOpen] = useState(false);
+@@ -186,7 +186,7 @@ export function DiscoverFieldSearch({ onChange, value, types }: Props) {
+     >
+       <FormattedMessage
+         id="discover.fieldChooser.fieldFilterFacetButtonLabel"
+-        defaultMessage="Filter by type"
++        defaultMessage="根据类型过滤"
+       />
+     </EuiFacetButton>
+   );
+@@ -292,14 +292,14 @@ export function DiscoverFieldSearch({ onChange, value, types }: Props) {
+           >
+             <EuiPopoverTitle>
+               {i18n.translate('discover.fieldChooser.filter.filterByTypeLabel', {
+-                defaultMessage: 'Filter by type',
++                defaultMessage: '根据类型过滤',
+               })}
+             </EuiPopoverTitle>
+             {selectionPanel}
+             <EuiPopoverFooter>
+               <EuiSwitch
+                 label={i18n.translate('discover.fieldChooser.filter.hideMissingFieldsLabel', {
+-                  defaultMessage: 'Hide missing fields',
++                  defaultMessage: '隐藏缺失的字段',
+                 })}
+                 checked={values.missing}
+                 onChange={handleMissingChange}
+diff --git a/src/plugins/discover/public/application/components/sidebar/discover_sidebar.tsx b/src/plugins/discover/public/application/components/sidebar/discover_sidebar.tsx
+index ee82bb3bb7..4c3d42dc09 100644
+--- a/src/plugins/discover/public/application/components/sidebar/discover_sidebar.tsx
++++ b/src/plugins/discover/public/application/components/sidebar/discover_sidebar.tsx
+@@ -182,7 +182,7 @@ export function DiscoverSidebar({
+                 <h3>
+                   <FormattedMessage
+                     id="discover.fieldChooser.filter.selectedFieldsTitle"
+-                    defaultMessage="Selected fields"
++                    defaultMessage="已选中的字段"
+                   />
+                 </h3>
+               </EuiTitle>
+@@ -218,7 +218,7 @@ export function DiscoverSidebar({
+                   <h3>
+                     <FormattedMessage
+                       id="discover.fieldChooser.filter.availableFieldsTitle"
+-                      defaultMessage="Available fields"
++                      defaultMessage="可选字段"
+                     />
+                   </h3>
+                 </EuiTitle>
+diff --git a/src/plugins/vis_type_timeseries/public/application/components/lib/durations.js b/src/plugins/vis_type_timeseries/public/application/components/lib/durations.js
+index f7361b4c25..cac06e44e8 100644
+--- a/src/plugins/vis_type_timeseries/public/application/components/lib/durations.js
++++ b/src/plugins/vis_type_timeseries/public/application/components/lib/durations.js
+@@ -65,7 +65,7 @@ const durationBaseOptions = [
+   },
+   {
+     label: i18n.translate('visTypeTimeseries.durationOptions.weeksLabel', {
+-      defaultMessage: 'Weeks',
++      defaultMessage: '星期',
+     }),
+     value: 'w',
+   },
+diff --git a/src/plugins/vis_type_timeseries/public/application/components/lib/get_interval.js b/src/plugins/vis_type_timeseries/public/application/components/lib/get_interval.js
+index 15d23cfd2d..f7a4ea6416 100644
+--- a/src/plugins/vis_type_timeseries/public/application/components/lib/get_interval.js
++++ b/src/plugins/vis_type_timeseries/public/application/components/lib/get_interval.js
+@@ -43,7 +43,7 @@ export const unitLookup = {
+   m: i18n.translate('visTypeTimeseries.getInterval.minutesLabel', { defaultMessage: 'minutes' }),
+   h: i18n.translate('visTypeTimeseries.getInterval.hoursLabel', { defaultMessage: 'hours' }),
+   d: i18n.translate('visTypeTimeseries.getInterval.daysLabel', { defaultMessage: 'days' }),
+-  w: i18n.translate('visTypeTimeseries.getInterval.weeksLabel', { defaultMessage: 'weeks' }),
++  w: i18n.translate('visTypeTimeseries.getInterval.weeksLabel', { defaultMessage: '星期' }),
+   M: i18n.translate('visTypeTimeseries.getInterval.monthsLabel', { defaultMessage: 'months' }),
+   y: i18n.translate('visTypeTimeseries.getInterval.yearsLabel', { defaultMessage: 'years' }),
+ };
+-- 
+2.25.1
+
