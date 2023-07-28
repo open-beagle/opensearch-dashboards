@@ -71,12 +71,12 @@ const packages: Package[] = [
         sha256: '595c6653d796493ddb288fc0732a0d1df8560099796f55a1dd242357d96bb8d6',
       },
       'linux-x64': {
-        url: 'https://github.com/uhop/node-re2/releases/download/1.15.4/linux-x64-64.gz',
+        url: 'https://cache.wodcloud.com/vscode/beagle/opensearch-dashboards/uhop/node-re2/1.15.4/linux-x64-64.gz',
         sha256: 'e743587bc96314edf10c3e659c03168bc374a5cd9a6623ee99d989251e331f28',
       },
       'linux-arm64': {
         url:
-          'https://d1v1sj258etie.cloudfront.net/node-re2/releases/download/1.15.4/linux-arm64-64.tar.gz',
+          'https://cache.wodcloud.com/vscode/beagle/opensearch-dashboards/uhop/node-re2/1.15.4/linux-arm64-64.tar.gz',
         sha256: '24edcdf45a09e69b6329385ab3ece24b424602a2656c8a297111d7aac174723b',
         overriddenExtractMethod: 'untar',
         overriddenDestinationPath: 'node_modules/re2/build/Release',

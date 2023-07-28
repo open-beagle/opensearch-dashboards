@@ -7,8 +7,7 @@ git remote add upstream git@github.com:opensearch-project/OpenSearch-Dashboards.
 
 git fetch upstream
 
-// 1.3.9 2022.08.26
-git merge upstream/1.3
+git merge 1.3.11
 ```
 
 ## debug
@@ -16,44 +15,32 @@ git merge upstream/1.3
 ```bash
 # 安装plugins
 git clone -b 1.3 git@github.com:opensearch-project/index-management-dashboards-plugin.git plugins/index-management-dashboards-plugin
-export CYPRESS_INSTALL_BINARY=https://cache.wodcloud.com/vscode/node/cypress/cypress_6.8.0_linux_x64.zip
 
-# 准备node
-export NODE_VERSION=v10.24.1
-bash /go/src/gitlab.wodcloud.com/shucheng/wsl/src/node.sh
-node --version
-
-# 安装所有依赖node_modules
-yarn osd bootstrap --allow-root
-
-# opensearch-dashboards-build
-docker build \
-  --build-arg BASE=registry.cn-qingdao.aliyuncs.com/wod/debian:bookworm \
-  --build-arg AUTHOR=mengkzhaoyun@gmail.com \
-  --build-arg VERSION=v1.x \
-  --tag registry.cn-qingdao.aliyuncs.com/wod-arm/opensearch-dashboards-build:v1.x \
-  --file .beagle/opensearch-dashboards-build/dockerfile .
-
-docker push registry.cn-qingdao.aliyuncs.com/wod-arm/opensearch-dashboards-build:v1.x
-
-# Bootstrap OpenSearch Dashboards
+# 安装node_modules
 docker run --rm \
 -it \
 -v $PWD/:/go/src/github.com/elastic/kibana \
 -w /go/src/github.com/elastic/kibana \
-registry.cn-qingdao.aliyuncs.com/wod-arm/opensearch-dashboards-build:v1.x \
-bash -c "
-yarn osd bootstrap --allow-root
-"
+-e CYPRESS_INSTALL_BINARY=https://cache.wodcloud.com/vscode/node/cypress/cypress_6.8.0_linux_x64.zip \
+registry.cn-qingdao.aliyuncs.com/wod/devops-node:v10 \
+yarn osd bootstrap --allow-root true 
 
-# Build
+# 安装依赖
+# src/dev/build/tasks/patch_native_modules_task.ts
+rm -rf ./build/node-re2 && \
+mkdir -p ./build/node-re2 && \
+curl -x socks5://www.ali.wodcloud.com:1283 https://github.com/uhop/node-re2/releases/download/1.15.4/linux-x64-64.gz > ./build/node-re2/linux-x64-64.gz && \
+curl -x socks5://www.ali.wodcloud.com:1283 https://d1v1sj258etie.cloudfront.net/node-re2/releases/download/1.15.4/linux-arm64-64.tar.gz > ./build/node-re2/linux-arm64-64.tar.gz && \
+mc cp --recursive ./build/node-re2/ cache/vscode/beagle/opensearch-dashboards/uhop/node-re2/1.15.4/
+
+# 构建项目
 docker run --rm \
 -it \
 -v $PWD/:/go/src/github.com/elastic/kibana \
 -w /go/src/github.com/elastic/kibana \
 -e YARN_CACHE_FOLDER=/go/src/github.com/elastic/kibana/.yarn-local-mirror/ \
--e BUILD_VERSION=1.3.5 \
-registry.cn-qingdao.aliyuncs.com/wod-arm/opensearch-dashboards-build:v1.x \
+-e BUILD_VERSION=1.3.11 \
+registry.cn-qingdao.aliyuncs.com/wod/devops-node:v10 \
 bash -c '
 yarn build-platform --skip-os-packages --skip-archives --linux --linux-arm --release
 '
@@ -93,15 +80,15 @@ export CI_COMMIT_SHA=$(git rev-parse --short HEAD)
 docker build \
   --build-arg BASE=registry.cn-qingdao.aliyuncs.com/wod/debian:bookworm-slim-amd64 \
   --build-arg AUTHOR=mengkzhaoyun@gmail.com \
-  --build-arg VERSION=v1.4.0 \
+  --build-arg VERSION=v1.3.11 \
   --build-arg TARGETARCH=x64 \
-  --build-arg TARGEVERSION=1.3.5 \
+  --build-arg TARGEVERSION=1.3.11 \
   --build-arg BUILD_DATE=$(date) \
   --build-arg BUILD_VERSION=$CI_COMMIT_SHA \
-  --tag registry.cn-qingdao.aliyuncs.com/wod/opensearch-dashboards:v1.4.0-amd64 \
+  --tag registry.cn-qingdao.aliyuncs.com/wod/opensearch-dashboards:v1.3.11-amd64 \
   --file ./.beagle/opensearch-dashboards/dockerfile .
 
-docker push registry.cn-qingdao.aliyuncs.com/wod/opensearch-dashboards:v1.4.0-amd64
+docker push registry.cn-qingdao.aliyuncs.com/wod/opensearch-dashboards:v1.3.11-amd64
 ```
 
 ## cache
@@ -113,10 +100,9 @@ docker run --rm \
   -e PLUGIN_ENDPOINT=$PLUGIN_ENDPOINT \
   -e PLUGIN_ACCESS_KEY=$PLUGIN_ACCESS_KEY \
   -e PLUGIN_SECRET_KEY=$PLUGIN_SECRET_KEY \
-  -e DRONE_REPO_OWNER="cloud" \
+  -e DRONE_REPO_OWNER="open-beagle" \
   -e DRONE_REPO_NAME="opensearch-dashboards" \
-  -e DRONE_COMMIT_BRANCH="dev" \
-  -e PLUGIN_MOUNT="./.yarn-local-mirror,./node_modules,./packages/*/node_modules,./test/plugin_functional/plugins/*/node_modules,./test/interpreter_functional/plugins/*/node_modules" \
+  -e PLUGIN_MOUNT="./.git,./.yarn-local-mirror,./node_modules,./packages/*/node_modules,./test/plugin_functional/plugins/*/node_modules,./test/interpreter_functional/plugins/*/node_modules" \
   -v $(pwd):$(pwd) \
   -w $(pwd) \
   registry.cn-qingdao.aliyuncs.com/wod/devops-s3-cache:1.0
@@ -127,9 +113,8 @@ docker run --rm \
   -e PLUGIN_ENDPOINT=$PLUGIN_ENDPOINT \
   -e PLUGIN_ACCESS_KEY=$PLUGIN_ACCESS_KEY \
   -e PLUGIN_SECRET_KEY=$PLUGIN_SECRET_KEY \
-  -e DRONE_REPO_OWNER="cloud" \
+  -e DRONE_REPO_OWNER="open-beagle" \
   -e DRONE_REPO_NAME="opensearch-dashboards" \
-  -e DRONE_COMMIT_BRANCH="dev" \
   -v $(pwd):$(pwd) \
   -w $(pwd) \
   registry.cn-qingdao.aliyuncs.com/wod/devops-s3-cache:1.0
