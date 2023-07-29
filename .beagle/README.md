@@ -13,25 +13,47 @@ git merge 1.3.11
 ## debug
 
 ```bash
-# 安装plugins
+# 安装依赖
+# src/dev/build/tasks/patch_native_modules_task.ts
+rm -rf ./build/node-re2 && \
+mkdir -p ./build/node-re2 && \
+curl -x socks5://www.ali.wodcloud.com:1283 -L https://github.com/uhop/node-re2/releases/download/1.15.4/linux-x64-64.gz > ./build/node-re2/linux-x64-64.gz && \
+curl -x socks5://www.ali.wodcloud.com:1283 https://d1v1sj258etie.cloudfront.net/node-re2/releases/download/1.15.4/linux-arm64-64.tar.gz > ./build/node-re2/linux-arm64-64.tar.gz && \
+mc cp --recursive ./build/node-re2/ cache/vscode/beagle/opensearch-dashboards/uhop/node-re2/1.15.4/
+
+# src/dev/build/tasks/os_packages/docker_generator/templates/Dockerfile
+# https://github.com/notofonts/noto-cjk/raw/NotoSansV2.001/NotoSansCJK-Regular.ttc
+rm -rf ./build/googlefonts && \
+mkdir -p ./build/googlefonts && \
+curl -x socks5://www.ali.wodcloud.com:1283 https://raw.githubusercontent.com/notofonts/noto-cjk/NotoSansV2.001/NotoSansCJK-Regular.ttc > ./build/googlefonts/NotoSansCJK-Regular.ttc && \
+mc cp --recursive ./build/googlefonts/ cache/vscode/beagle/opensearch-dashboards/googlefonts/noto-cjk/NotoSansV2.001/
+
+# plugins/index-management-dashboards-plugin
 git clone -b 1.3 git@github.com:opensearch-project/index-management-dashboards-plugin.git plugins/index-management-dashboards-plugin
+
+docker run --rm \
+-it \
+-v $PWD/:/go/src/github.com/elastic/kibana \
+-w /go/src/github.com/elastic/kibana/plugins/index-management-dashboards-plugin \
+registry.cn-qingdao.aliyuncs.com/wod/devops-node:v10 \
+yarn osd bootstrap --allow-root true
+
+docker run --rm \
+-it \
+-v $PWD/:/go/src/github.com/elastic/kibana \
+-w /go/src/github.com/elastic/kibana/plugins/index-management-dashboards-plugin \
+registry.cn-qingdao.aliyuncs.com/wod/devops-node:v10 \
+yarn build
+
+mc cp --recursive ./plugins/index-management-dashboards-plugin/build/index-management-dashboards-1.3.1-1.0.zip cache/vscode/beagle/opensearch-dashboards/plugins/index-management-dashboards-1.3.1-1.0.zip
 
 # 安装node_modules
 docker run --rm \
 -it \
 -v $PWD/:/go/src/github.com/elastic/kibana \
 -w /go/src/github.com/elastic/kibana \
--e CYPRESS_INSTALL_BINARY=https://cache.wodcloud.com/vscode/node/cypress/cypress_6.8.0_linux_x64.zip \
 registry.cn-qingdao.aliyuncs.com/wod/devops-node:v10 \
 yarn osd bootstrap --allow-root true 
-
-# 安装依赖
-# src/dev/build/tasks/patch_native_modules_task.ts
-rm -rf ./build/node-re2 && \
-mkdir -p ./build/node-re2 && \
-curl -x socks5://www.ali.wodcloud.com:1283 https://github.com/uhop/node-re2/releases/download/1.15.4/linux-x64-64.gz > ./build/node-re2/linux-x64-64.gz && \
-curl -x socks5://www.ali.wodcloud.com:1283 https://d1v1sj258etie.cloudfront.net/node-re2/releases/download/1.15.4/linux-arm64-64.tar.gz > ./build/node-re2/linux-arm64-64.tar.gz && \
-mc cp --recursive ./build/node-re2/ cache/vscode/beagle/opensearch-dashboards/uhop/node-re2/1.15.4/
 
 # 构建项目
 docker run --rm \
@@ -59,6 +81,11 @@ node scripts/i18n_extract --output-dir ./translations --output-format json
 node scripts/i18n_integrate --source ./translations/zh-CN.json
 
 # clean
+docker run --rm \
+-it \
+-v $PWD/:/go/src/github.com/elastic/kibana \
+-w /go/src/github.com/elastic/kibana \
+registry.cn-qingdao.aliyuncs.com/wod/devops-node:v10 \
 yarn osd clean
 ```
 
