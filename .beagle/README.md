@@ -45,7 +45,7 @@ docker run --rm \
 registry.cn-qingdao.aliyuncs.com/wod/devops-node:v10 \
 yarn build
 
-mc cp --recursive ./plugins/index-management-dashboards-plugin/build/index-management-dashboards-1.3.1-1.0.zip cache/vscode/beagle/opensearch-dashboards/plugins/index-management-dashboards-1.3.1-1.0.zip
+mc cp ./plugins/index-management-dashboards-plugin/build/index-management-dashboards-1.3.1-1.0.zip cache/vscode/beagle/opensearch-dashboards/plugins/index-management-dashboards-1.3.1-1.0.zip
 
 # 安装node_modules
 docker run --rm \
