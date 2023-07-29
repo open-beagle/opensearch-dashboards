@@ -48,7 +48,7 @@ steps:
       - yarn osd bootstrap --allow-root
       - git apply .beagle/v1.3-i18n-zh-CN.patch
       - export YARN_CACHE_FOLDER=$PWD/.yarn-local-mirror/
-      - yarn build-platform --skip-os-packages --skip-archives --linux --linux-arm
+      - yarn build-platform --skip-os-packages --skip-archives --linux --linux-arm --release
 
   - name: dumb-init-amd64
     image: registry.cn-qingdao.aliyuncs.com/wod/dumb-init:v1.2.5-amd64
