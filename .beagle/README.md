@@ -107,15 +107,15 @@ export CI_COMMIT_SHA=$(git rev-parse --short HEAD)
 docker build \
   --build-arg BASE=registry.cn-qingdao.aliyuncs.com/wod/debian:bookworm-slim-amd64 \
   --build-arg AUTHOR=mengkzhaoyun@gmail.com \
-  --build-arg VERSION=v1.3.11 \
+  --build-arg VERSION=v6.2.1 \
   --build-arg TARGETARCH=x64 \
   --build-arg TARGEVERSION=1.3.11 \
   --build-arg BUILD_DATE=$(date) \
   --build-arg BUILD_VERSION=$CI_COMMIT_SHA \
-  --tag registry.cn-qingdao.aliyuncs.com/wod/opensearch-dashboards:v1.3.11-amd64 \
+  --tag registry.cn-qingdao.aliyuncs.com/wod/opensearch-dashboards:v6.2.1-amd64 \
   --file ./.beagle/opensearch-dashboards/dockerfile .
 
-docker push registry.cn-qingdao.aliyuncs.com/wod/opensearch-dashboards:v1.3.11-amd64
+docker push registry.cn-qingdao.aliyuncs.com/wod/opensearch-dashboards:v6.2.1-amd64
 ```
 
 ## cache

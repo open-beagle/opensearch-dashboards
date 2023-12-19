@@ -824,3 +824,141 @@ index 2cc75de64a..17598b2e68 100644
 -- 
 2.42.0.windows.1
 
+From f74d6ac82c576b107b7bf6eeb48d33cd7ca80a22 Mon Sep 17 00:00:00 2001
+From: DingYuanzhi <dingyuanzhi@wodcloud.com>
+Date: Tue, 19 Dec 2023 17:45:56 +0800
+Subject: [PATCH] =?UTF-8?q?awecloudlog=5Fview=E5=8F=82=E6=95=B0=E6=8E=A7?=
+ =?UTF-8?q?=E5=88=B6=E6=93=8D=E4=BD=9C=E6=A0=8F=E6=98=BE=E9=9A=90?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .../data/public/ui/search_bar/search_bar.tsx  |  6 +-
+ .../components/discover_legacy.tsx            | 81 ++++++++++++-------
+ 2 files changed, 55 insertions(+), 32 deletions(-)
+
+diff --git a/src/plugins/data/public/ui/search_bar/search_bar.tsx b/src/plugins/data/public/ui/search_bar/search_bar.tsx
+index fe3eda697f..da04777fb0 100644
+--- a/src/plugins/data/public/ui/search_bar/search_bar.tsx
++++ b/src/plugins/data/public/ui/search_bar/search_bar.tsx
+@@ -454,10 +454,14 @@ class SearchBarUI extends Component<SearchBarProps, State> {
+       );
+     }
+ 
++    const urlStr = window.location.href.split('?')[1];
++    const urlSearchParams = new URLSearchParams(urlStr);
++    const result = Object.fromEntries((urlSearchParams as any).entries());
++
+     return (
+       <div className="globalQueryBar" data-test-subj="globalQueryBar">
+         {queryBar}
+-        {filterBar}
++        {result.btype !== 'awecloudlog_view' && filterBar}
+ 
+         {this.state.showSaveQueryModal ? (
+           <SaveQueryForm
+diff --git a/src/plugins/discover/public/application/components/discover_legacy.tsx b/src/plugins/discover/public/application/components/discover_legacy.tsx
+index e283d41c42..0a2eac75db 100644
+--- a/src/plugins/discover/public/application/components/discover_legacy.tsx
++++ b/src/plugins/discover/public/application/components/discover_legacy.tsx
+@@ -163,6 +163,20 @@ export function DiscoverLegacy({
+     'col-md-12': isSidebarClosed,
+   });
+ 
++  const urlStr = window.location.href.split('?')[1];
++  const urlSearchParams = new URLSearchParams(urlStr);
++  const result = Object.fromEntries((urlSearchParams as any).entries());
++
++  const dscWrapperStyle = {
++    paddingLeft: result.btype === 'awecloudlog_view' ? '8px' : '32px',
++  };
++  
++  useEffect(()=>{
++    if(result.btype === 'awecloudlog_view'){
++      setIsSidebarClosed(true)
++    }
++  },[])
++
+   return (
+     <I18nProvider>
+       <div className="dscAppContainer" data-fetch-counter={fetchCounter}>
+@@ -184,39 +198,44 @@ export function DiscoverLegacy({
+         />
+         <main className="container-fluid">
+           <div className="row">
+-            <div
+-              className={`col-md-2 dscSidebar__container dscCollapsibleSidebar ${sidebarClassName}`}
+-              id="discover-sidebar"
+-              data-test-subj="discover-sidebar"
+-            >
+-              {!isSidebarClosed && (
+-                <div className="dscFieldChooser">
+-                  <DiscoverSidebar
+-                    columns={state.columns || []}
+-                    fieldCounts={fieldCounts}
+-                    hits={rows}
+-                    indexPatternList={indexPatternList}
+-                    onAddField={addColumn}
+-                    onAddFilter={onAddFilter}
+-                    onRemoveField={onRemoveColumn}
+-                    selectedIndexPattern={searchSource && searchSource.getField('index')}
+-                    setIndexPattern={setIndexPattern}
++            {
++              result.btype !== 'awecloudlog_view' && (
++                <div
++                  className={`col-md-2 dscSidebar__container dscCollapsibleSidebar ${sidebarClassName}`}
++                  id="discover-sidebar"
++                  data-test-subj="discover-sidebar"
++                >
++                  {!isSidebarClosed && (
++                    <div className="dscFieldChooser">
++                      <DiscoverSidebar
++                        columns={state.columns || []}
++                        fieldCounts={fieldCounts}
++                        hits={rows}
++                        indexPatternList={indexPatternList}
++                        onAddField={addColumn}
++                        onAddFilter={onAddFilter}
++                        onRemoveField={onRemoveColumn}
++                        selectedIndexPattern={searchSource && searchSource.getField('index')}
++                        setIndexPattern={setIndexPattern}
++                      />
++                    </div>
++                  )}
++                  <EuiButtonIcon
++                    iconType={isSidebarClosed ? 'menuRight' : 'menuLeft'}
++                    iconSize="m"
++                    size="s"
++                    onClick={() => setIsSidebarClosed(!isSidebarClosed)}
++                    data-test-subj="collapseSideBarButton"
++                    aria-controls="discover-sidebar"
++                    aria-expanded={isSidebarClosed ? 'false' : 'true'}
++                    aria-label="Toggle sidebar"
++                    className="dscCollapsibleSidebar__collapseButton"
+                   />
+                 </div>
+-              )}
+-              <EuiButtonIcon
+-                iconType={isSidebarClosed ? 'menuRight' : 'menuLeft'}
+-                iconSize="m"
+-                size="s"
+-                onClick={() => setIsSidebarClosed(!isSidebarClosed)}
+-                data-test-subj="collapseSideBarButton"
+-                aria-controls="discover-sidebar"
+-                aria-expanded={isSidebarClosed ? 'false' : 'true'}
+-                aria-label="Toggle sidebar"
+-                className="dscCollapsibleSidebar__collapseButton"
+-              />
+-            </div>
+-            <div className={`dscWrapper ${mainSectionClassName}`}>
++              )
++            }
++        
++            <div className={`dscWrapper ${mainSectionClassName}`} style={dscWrapperStyle}>
+               {resultState === 'none' && (
+                 <DiscoverNoResults
+                   timeFieldName={opts.timefield}
+-- 
+2.42.0.windows.2
+
