@@ -7,7 +7,7 @@ git remote add upstream git@github.com:opensearch-project/OpenSearch-Dashboards.
 
 git fetch upstream
 
-git merge 1.3.11
+git merge 1.3.14
 ```
 
 ## debug
@@ -45,7 +45,7 @@ docker run --rm \
 registry.cn-qingdao.aliyuncs.com/wod/devops-node:v10 \
 yarn build
 
-mc cp ./plugins/index-management-dashboards-plugin/build/index-management-dashboards-1.3.1-1.0.zip cache/vscode/beagle/opensearch-dashboards/plugins/index-management-dashboards-1.3.1-1.0.zip
+mc cp ./plugins/index-management-dashboards-plugin/build/index-management-dashboards-1.3.1-4.0.zip cache/vscode/beagle/opensearch-dashboards/plugins/index-management-dashboards-1.3.1-4.0.zip
 
 # 安装node_modules
 docker run --rm \
@@ -61,7 +61,7 @@ docker run --rm \
 -v $PWD/:/go/src/github.com/elastic/kibana \
 -w /go/src/github.com/elastic/kibana \
 -e YARN_CACHE_FOLDER=/go/src/github.com/elastic/kibana/.yarn-local-mirror/ \
--e BUILD_VERSION=1.3.11 \
+-e BUILD_VERSION=1.3.14 \
 registry.cn-qingdao.aliyuncs.com/wod/devops-node:v10 \
 bash -c '
 yarn build-platform --skip-os-packages --skip-archives --linux --linux-arm --release
@@ -107,15 +107,15 @@ export CI_COMMIT_SHA=$(git rev-parse --short HEAD)
 docker build \
   --build-arg BASE=registry.cn-qingdao.aliyuncs.com/wod/debian:bookworm-slim-amd64 \
   --build-arg AUTHOR=mengkzhaoyun@gmail.com \
-  --build-arg VERSION=v1.3.11 \
+  --build-arg VERSION=v1.3.14 \
   --build-arg TARGETARCH=x64 \
-  --build-arg TARGEVERSION=1.3.11 \
+  --build-arg TARGEVERSION=1.3.14 \
   --build-arg BUILD_DATE=$(date) \
   --build-arg BUILD_VERSION=$CI_COMMIT_SHA \
-  --tag registry.cn-qingdao.aliyuncs.com/wod/opensearch-dashboards:v1.3.11-amd64 \
+  --tag registry.cn-qingdao.aliyuncs.com/wod/opensearch-dashboards:v1.3.14-amd64 \
   --file ./.beagle/opensearch-dashboards/dockerfile .
 
-docker push registry.cn-qingdao.aliyuncs.com/wod/opensearch-dashboards:v1.3.11-amd64
+docker push registry.cn-qingdao.aliyuncs.com/wod/opensearch-dashboards:v1.3.14-amd64
 ```
 
 ## cache

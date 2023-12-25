@@ -55,7 +55,7 @@ RUN groupadd --gid 1000 opensearch-dashboards && \
       opensearch-dashboards
 
 # add plugins
-RUN /usr/share/opensearch-dashboards/bin/opensearch-dashboards-plugin install https://cache.wodcloud.com/vscode/beagle/opensearch-dashboards/plugins/index-management-dashboards-1.3.1-1.0.zip
+RUN /usr/share/opensearch-dashboards/bin/opensearch-dashboards-plugin install https://cache.wodcloud.com/vscode/beagle/opensearch-dashboards/plugins/index-management-dashboards-1.3.1-4.0.zip
 
 ARG BUILD_DATE
 ARG BUILD_REVISION
