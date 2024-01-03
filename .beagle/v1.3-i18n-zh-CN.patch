@@ -962,3 +962,145 @@ index e283d41c42..0a2eac75db 100644
 -- 
 2.42.0.windows.2
 
+From 612bdba58230fea60e76f1cab9892b92b123ca4e Mon Sep 17 00:00:00 2001
+From: DingYuanzhi <dingyuanzhi@wodcloud.com>
+Date: Wed, 3 Jan 2024 15:33:17 +0800
+Subject: [PATCH] =?UTF-8?q?=E5=8E=BB=E9=99=A4Lucene=20syntax=20warning?=
+ =?UTF-8?q?=E6=8F=90=E7=A4=BA=E6=A1=86?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .../query_string_input/query_bar_top_row.tsx  | 108 +++++++++---------
+ 1 file changed, 54 insertions(+), 54 deletions(-)
+
+diff --git a/src/plugins/data/public/ui/query_string_input/query_bar_top_row.tsx b/src/plugins/data/public/ui/query_string_input/query_bar_top_row.tsx
+index c8a63d819e..99ac9f1be7 100644
+--- a/src/plugins/data/public/ui/query_string_input/query_bar_top_row.tsx
++++ b/src/plugins/data/public/ui/query_string_input/query_bar_top_row.tsx
+@@ -174,7 +174,7 @@ export default function QueryBarTopRow(props: QueryBarTopRowProps) {
+   }
+ 
+   function onSubmit({ query, dateRange }: { query?: Query; dateRange: TimeRange }) {
+-    handleLuceneSyntaxWarning();
++    // handleLuceneSyntaxWarning();
+ 
+     if (props.timeHistory) {
+       props.timeHistory.add(dateRange);
+@@ -322,59 +322,59 @@ export default function QueryBarTopRow(props: QueryBarTopRowProps) {
+     );
+   }
+ 
+-  function handleLuceneSyntaxWarning() {
+-    if (!props.query) return;
+-    const { query, language } = props.query;
+-    if (
+-      language === 'kuery' &&
+-      typeof query === 'string' &&
+-      (!storage || !storage.get('opensearchDashboards.luceneSyntaxWarningOptOut')) &&
+-      doesKueryExpressionHaveLuceneSyntaxError(query)
+-    ) {
+-      const toast = notifications!.toasts.addWarning({
+-        title: i18n.translate('data.query.queryBar.luceneSyntaxWarningTitle', {
+-          defaultMessage: 'Lucene syntax warning',
+-        }),
+-        text: toMountPoint(
+-          <div>
+-            <p>
+-              <FormattedMessage
+-                id="data.query.queryBar.luceneSyntaxWarningMessage"
+-                defaultMessage="It looks like you may be trying to use Lucene query syntax, although you
+-               have opensearchDashboards Query Language (DQL) selected. Please review the DQL docs {link}."
+-                values={{
+-                  link: (
+-                    <EuiLink href={osdDQLDocs} target="_blank">
+-                      <FormattedMessage
+-                        id="data.query.queryBar.syntaxOptionsDescription.docsLinkText"
+-                        defaultMessage="here"
+-                      />
+-                    </EuiLink>
+-                  ),
+-                }}
+-              />
+-            </p>
+-            <EuiFlexGroup justifyContent="flexEnd" gutterSize="s">
+-              <EuiFlexItem grow={false}>
+-                <EuiButton size="s" onClick={() => onLuceneSyntaxWarningOptOut(toast)}>
+-                  <FormattedMessage
+-                    id="data.query.queryBar.luceneSyntaxWarningOptOutText"
+-                    defaultMessage="Don't show again"
+-                  />
+-                </EuiButton>
+-              </EuiFlexItem>
+-            </EuiFlexGroup>
+-          </div>
+-        ),
+-      });
+-    }
+-  }
+-
+-  function onLuceneSyntaxWarningOptOut(toast: Toast) {
+-    if (!storage) return;
+-    storage.set('opensearchDashboards.luceneSyntaxWarningOptOut', true);
+-    notifications!.toasts.remove(toast);
+-  }
++  // function handleLuceneSyntaxWarning() {
++  //   if (!props.query) return;
++  //   const { query, language } = props.query;
++  //   if (
++  //     language === 'kuery' &&
++  //     typeof query === 'string' &&
++  //     (!storage || !storage.get('opensearchDashboards.luceneSyntaxWarningOptOut')) &&
++  //     doesKueryExpressionHaveLuceneSyntaxError(query)
++  //   ) {
++  //     const toast = notifications!.toasts.addWarning({
++  //       title: i18n.translate('data.query.queryBar.luceneSyntaxWarningTitle', {
++  //         defaultMessage: 'Lucene syntax warning',
++  //       }),
++  //       text: toMountPoint(
++  //         <div>
++  //           <p>
++  //             <FormattedMessage
++  //               id="data.query.queryBar.luceneSyntaxWarningMessage"
++  //               defaultMessage="It looks like you may be trying to use Lucene query syntax, although you
++  //              have opensearchDashboards Query Language (DQL) selected. Please review the DQL docs {link}."
++  //               values={{
++  //                 link: (
++  //                   <EuiLink href={osdDQLDocs} target="_blank">
++  //                     <FormattedMessage
++  //                       id="data.query.queryBar.syntaxOptionsDescription.docsLinkText"
++  //                       defaultMessage="here"
++  //                     />
++  //                   </EuiLink>
++  //                 ),
++  //               }}
++  //             />
++  //           </p>
++  //           <EuiFlexGroup justifyContent="flexEnd" gutterSize="s">
++  //             <EuiFlexItem grow={false}>
++  //               <EuiButton size="s" onClick={() => onLuceneSyntaxWarningOptOut(toast)}>
++  //                 <FormattedMessage
++  //                   id="data.query.queryBar.luceneSyntaxWarningOptOutText"
++  //                   defaultMessage="Don't show again"
++  //                 />
++  //               </EuiButton>
++  //             </EuiFlexItem>
++  //           </EuiFlexGroup>
++  //         </div>
++  //       ),
++  //     });
++  //   }
++  // }
++
++  // function onLuceneSyntaxWarningOptOut(toast: Toast) {
++  //   if (!storage) return;
++  //   storage.set('opensearchDashboards.luceneSyntaxWarningOptOut', true);
++  //   notifications!.toasts.remove(toast);
++  // }
+ 
+   const classes = classNames('osdQueryBar', {
+     'osdQueryBar--withDatePicker': props.showDatePicker,
+-- 
+2.42.0.windows.2
+
