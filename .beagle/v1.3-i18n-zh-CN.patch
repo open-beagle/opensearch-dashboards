@@ -1104,3 +1104,174 @@ index c8a63d819e..99ac9f1be7 100644
 -- 
 2.42.0.windows.2
 
+
+
+From c817fc96301b12e3b996699b2c609b72c6379935 Mon Sep 17 00:00:00 2001
+From: zhoulimin <15898131481@163.com>
+Date: Thu, 1 Feb 2024 10:43:19 +0800
+Subject: [PATCH] =?UTF-8?q?=E4=B8=8B=E8=BD=BD=E5=8A=9F=E8=83=BD?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .../query_string_input/query_bar_top_row.tsx  | 82 ++++++++++++++++++-
+ .../data/public/ui/search_bar/search_bar.tsx  |  6 +-
+ 2 files changed, 86 insertions(+), 2 deletions(-)
+
+diff --git a/src/plugins/data/public/ui/query_string_input/query_bar_top_row.tsx b/src/plugins/data/public/ui/query_string_input/query_bar_top_row.tsx
+index c8a63d819e..3cf5df38b1 100644
+--- a/src/plugins/data/public/ui/query_string_input/query_bar_top_row.tsx
++++ b/src/plugins/data/public/ui/query_string_input/query_bar_top_row.tsx
+@@ -32,8 +32,9 @@
+ 
+ import dateMath from '@elastic/datemath';
+ import classNames from 'classnames';
+-import React, { useState } from 'react';
++import React, { useState, useEffect } from 'react';
+ import { i18n } from '@osd/i18n';
++import Axios from 'axios';
+ 
+ import {
+   EuiButton,
+@@ -43,7 +44,9 @@ import {
+   EuiSuperDatePicker,
+   EuiFieldText,
+   prettyDuration,
++  EuiToolTip,
+ } from '@elastic/eui';
++
+ // @ts-ignore
+ import { EuiSuperUpdateButton, OnRefreshProps } from '@elastic/eui';
+ import { FormattedMessage } from '@osd/i18n/react';
+@@ -92,6 +95,7 @@ export interface QueryBarTopRowProps {
+ export default function QueryBarTopRow(props: QueryBarTopRowProps) {
+   const [isDateRangeInvalid, setIsDateRangeInvalid] = useState(false);
+   const [isQueryInputFocused, setIsQueryInputFocused] = useState(false);
++  const [isDownload, setIsDownload] = useState(true);
+ 
+   const opensearchDashboards = useOpenSearchDashboards<IDataPluginServices>();
+   const { uiSettings, notifications, storage, appName, docLinks } = opensearchDashboards.services;
+@@ -107,7 +111,12 @@ export default function QueryBarTopRow(props: QueryBarTopRowProps) {
+     [appName, queryLanguage, uiSettings, storage]
+   );
+ 
++  useEffect(() => {
++    countTime();
++  }, []);
++
+   function onClickSubmitButton(event: React.MouseEvent<HTMLButtonElement>) {
++    countTime();
+     if (persistedLog && props.query) {
+       persistedLog.add(props.query.query);
+     }
+@@ -380,6 +389,58 @@ export default function QueryBarTopRow(props: QueryBarTopRowProps) {
+     'osdQueryBar--withDatePicker': props.showDatePicker,
+   });
+ 
++  function countTime() {
++    if (props.dateRangeTo === 'now' && props.dateRangeFrom?.indexOf('now') !== -1) {
++      const arr = props.dateRangeFrom?.split('-');
++      const laststr = props.dateRangeFrom?.slice(-1);
++
++      if (laststr === 'M' || laststr === 'y') {
++        setIsDownload(false);
++      } else if (laststr === 'w') {
++        if (arr && arr[1] !== '1w') {
++          setIsDownload(false);
++        } else {
++          setIsDownload(true);
++        }
++      } else if (laststr === 'd' && parseInt(arr[1]) > 7) {
++        setIsDownload(false);
++      } else if (laststr === 'h' && parseInt(arr[1]) > 168) {
++        setIsDownload(false);
++      } else if (laststr === 'm' && parseInt(arr[1]) > 10080) {
++        setIsDownload(false);
++      } else if (laststr === 's' && parseInt(arr[1]) > 604800) {
++        setIsDownload(false);
++      } else {
++        setIsDownload(true);
++      }
++    } else if (props.dateRangeFrom?.indexOf('T') !== -1) {
++      const from = new Date(props.dateRangeFrom);
++      const to = props.dateRangeTo === 'now' ? new Date() : new Date(props.dateRangeTo);
++      const stamp = to.getTime() - from.getTime();
++      const hours = Math.floor(stamp / (3600 * 1000));
++
++      if (hours > 7 * 24) {
++        setIsDownload(false);
++      } else {
++        setIsDownload(true);
++      }
++    } else {
++      setIsDownload(true);
++    }
++  }
++
++  function download() {
++    const urlStr = window.location.href.split('?')[1];
++    const urlSearchParams = new URLSearchParams(urlStr);
++    const result = Object.fromEntries((urlSearchParams as any).entries());
++    const time = '(from:' + props.dateRangeFrom + ',to:' + props.dateRangeTo + ')';
++
++    const url = `/awecloud/logApi/logHistory/download?time=${time}&query=${result._a}`;
++    const a = document.createElement('a');
++    a.setAttribute('download', ''); // download属性
++    a.setAttribute('href', url); // href链接
++    a.click(); // 自执行点击事件
++  }
+   return (
+     <EuiFlexGroup
+       className={classes}
+@@ -390,6 +451,25 @@ export default function QueryBarTopRow(props: QueryBarTopRowProps) {
+       {renderQueryInput()}
+       {renderSharingMetaFields()}
+       <EuiFlexItem grow={false}>{renderUpdateButton()}</EuiFlexItem>
++      {!isDownload && (
++        <EuiToolTip position="bottom" content={<p>时间间隔超过7天禁止下载!</p>}>
++          <EuiButton iconType="download" fill isDisabled style={{ margin: '4px 0 0' }}>
++            {' '}
++            下载{' '}
++          </EuiButton>
++        </EuiToolTip>
++      )}
++      {isDownload && (
++        <EuiButton
++          iconType="download"
++          fill
++          onClick={() => download()}
++          style={{ margin: '4px 0 0' }}
++        >
++          {' '}
++          下载{' '}
++        </EuiButton>
++      )}
+     </EuiFlexGroup>
+   );
+ }
+diff --git a/src/plugins/data/public/ui/search_bar/search_bar.tsx b/src/plugins/data/public/ui/search_bar/search_bar.tsx
+index fe3eda697f..da04777fb0 100644
+--- a/src/plugins/data/public/ui/search_bar/search_bar.tsx
++++ b/src/plugins/data/public/ui/search_bar/search_bar.tsx
+@@ -454,10 +454,14 @@ class SearchBarUI extends Component<SearchBarProps, State> {
+       );
+     }
+ 
++    const urlStr = window.location.href.split('?')[1];
++    const urlSearchParams = new URLSearchParams(urlStr);
++    const result = Object.fromEntries((urlSearchParams as any).entries());
++
+     return (
+       <div className="globalQueryBar" data-test-subj="globalQueryBar">
+         {queryBar}
+-        {filterBar}
++        {result.btype !== 'awecloudlog_view' && filterBar}
+ 
+         {this.state.showSaveQueryModal ? (
+           <SaveQueryForm
+-- 
+2.43.0
+
+
+
