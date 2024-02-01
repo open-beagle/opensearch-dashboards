@@ -824,6 +824,7 @@ index 2cc75de64a..17598b2e68 100644
 -- 
 2.42.0.windows.1
 
+
 From f74d6ac82c576b107b7bf6eeb48d33cd7ca80a22 Mon Sep 17 00:00:00 2001
 From: DingYuanzhi <dingyuanzhi@wodcloud.com>
 Date: Tue, 19 Dec 2023 17:45:56 +0800
@@ -873,6 +874,7 @@ index e283d41c42..0a2eac75db 100644
 +  const dscWrapperStyle = {
 +    paddingLeft: result.btype === 'awecloudlog_view' ? '8px' : '32px',
 +  };
++  
 +  useEffect(()=>{
 +    if(result.btype === 'awecloudlog_view'){
 +      setIsSidebarClosed(true)
@@ -953,12 +955,14 @@ index e283d41c42..0a2eac75db 100644
 -            <div className={`dscWrapper ${mainSectionClassName}`}>
 +              )
 +            }
++        
 +            <div className={`dscWrapper ${mainSectionClassName}`} style={dscWrapperStyle}>
                {resultState === 'none' && (
                  <DiscoverNoResults
                    timeFieldName={opts.timefield}
 -- 
 2.42.0.windows.2
+
 
 From 612bdba58230fea60e76f1cab9892b92b123ca4e Mon Sep 17 00:00:00 2001
 From: DingYuanzhi <dingyuanzhi@wodcloud.com>
@@ -1248,26 +1252,6 @@ index c8a63d819e..3cf5df38b1 100644
      </EuiFlexGroup>
    );
  }
-diff --git a/src/plugins/data/public/ui/search_bar/search_bar.tsx b/src/plugins/data/public/ui/search_bar/search_bar.tsx
-index fe3eda697f..da04777fb0 100644
---- a/src/plugins/data/public/ui/search_bar/search_bar.tsx
-+++ b/src/plugins/data/public/ui/search_bar/search_bar.tsx
-@@ -454,10 +454,14 @@ class SearchBarUI extends Component<SearchBarProps, State> {
-       );
-     }
- 
-+    const urlStr = window.location.href.split('?')[1];
-+    const urlSearchParams = new URLSearchParams(urlStr);
-+    const result = Object.fromEntries((urlSearchParams as any).entries());
-+
-     return (
-       <div className="globalQueryBar" data-test-subj="globalQueryBar">
-         {queryBar}
--        {filterBar}
-+        {result.btype !== 'awecloudlog_view' && filterBar}
- 
-         {this.state.showSaveQueryModal ? (
-           <SaveQueryForm
 -- 
 2.43.0
 
