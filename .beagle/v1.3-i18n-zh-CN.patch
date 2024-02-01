@@ -873,7 +873,6 @@ index e283d41c42..0a2eac75db 100644
 +  const dscWrapperStyle = {
 +    paddingLeft: result.btype === 'awecloudlog_view' ? '8px' : '32px',
 +  };
-+  
 +  useEffect(()=>{
 +    if(result.btype === 'awecloudlog_view'){
 +      setIsSidebarClosed(true)
@@ -954,7 +953,6 @@ index e283d41c42..0a2eac75db 100644
 -            <div className={`dscWrapper ${mainSectionClassName}`}>
 +              )
 +            }
-+        
 +            <div className={`dscWrapper ${mainSectionClassName}`} style={dscWrapperStyle}>
                {resultState === 'none' && (
                  <DiscoverNoResults
