@@ -1255,30 +1255,25 @@ index e283d41c42..0a2eac75db 100644
 # -- 
 # 2.43.0
 
-
-
-From 9cc8dcc50613d129f3aff6b878e415e3c4625f61 Mon Sep 17 00:00:00 2001
+From f80cc83baf571a1558879376b142b126ec4ccb8f Mon Sep 17 00:00:00 2001
 From: DingYuanzhi <dingyuanzhi@wodcloud.com>
-Date: Wed, 6 Mar 2024 11:32:04 +0800
-Subject: [PATCH] =?UTF-8?q?=E6=B7=BB=E5=8A=A0=E5=AE=B9=E5=99=A8=E7=BB=84?=
- =?UTF-8?q?=E7=AD=9B=E9=80=89?=
+Date: Wed, 6 Mar 2024 17:40:15 +0800
+Subject: [PATCH] =?UTF-8?q?=E5=AE=B9=E5=99=A8=E7=BB=84=E7=AD=9B=E9=80=89?=
+ =?UTF-8?q?=E7=B1=BB=E5=9E=8B=E6=8E=A7=E5=88=B6?=
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
 ---
- .../data/public/search/search_interceptor.ts  |  32 +++
- .../query_string_input/query_bar_top_row.tsx  | 271 ++++++++++++++----
- 3 files changed, 249 insertions(+), 58 deletions(-)
+ .../data/public/search/search_interceptor.ts  |  33 +++
+ .../query_string_input/query_bar_top_row.tsx  | 272 ++++++++++++++----
+ 2 files changed, 249 insertions(+), 56 deletions(-)
 
- 
- # Set the value of this setting to true to capture region blocked warnings and errors 
- # for your map rendering services.
 diff --git a/src/plugins/data/public/search/search_interceptor.ts b/src/plugins/data/public/search/search_interceptor.ts
-index 09731a0b52..c26cb00b26 100644
+index 09731a0b52..bb697301a7 100644
 --- a/src/plugins/data/public/search/search_interceptor.ts
 +++ b/src/plugins/data/public/search/search_interceptor.ts
-@@ -122,7 +122,39 @@ export class SearchInterceptor {
+@@ -122,6 +122,39 @@ export class SearchInterceptor {
        `/internal/search/${strategy || OPENSEARCH_SEARCH_STRATEGY}/${id || ''}`,
        '/'
      );
@@ -1286,40 +1281,40 @@ index 09731a0b52..c26cb00b26 100644
 +    const urlSearchParams = new URLSearchParams(urlStr);
 +    const result = Object.fromEntries((urlSearchParams as any).entries());
 +
-+    let boolfilter = searchRequest.params.body.query.bool.filter;
-+    let ispodname = false;
-+    boolfilter.forEach((e: any) => {
-+      if (e.match_phrase && Object.keys(e.match_phrase).includes('fields.podname.keyword')) {
-+        ispodname = true;
-+      }
-+    });
++    if (result.btype === 'awecloudlog_view') {
++      let boolfilter = searchRequest.params.body.query.bool.filter;
++      let ispodname = false;
++      boolfilter.forEach((e: any) => {
++        if (e.match_phrase && Object.keys(e.match_phrase).includes('fields.podname.keyword')) {
++          ispodname = true;
++        }
++      });
 +
-+    if (result.podvalue) {
-+      if (ispodname) {
-+        boolfilter.find(
-+          (e: any) =>
-+            e.match_phrase && Object.keys(e.match_phrase).includes('fields.podname.keyword')
-+        ).match_phrase['fields.podname.keyword'] = result.podvalue;
++      if (result.podvalue) {
++        if (ispodname) {
++          boolfilter.find(
++            (e: any) =>
++              e.match_phrase && Object.keys(e.match_phrase).includes('fields.podname.keyword')
++          ).match_phrase['fields.podname.keyword'] = result.podvalue;
++        } else {
++          boolfilter.push({
++            match_phrase: {
++              'fields.podname.keyword': result.podvalue,
++            },
++          });
++        }
 +      } else {
-+        boolfilter.push({
-+          match_phrase: {
-+            'fields.podname.keyword': result.podvalue,
-+          },
-+        });
++        boolfilter = boolfilter.filter((e: any) => !ispodname);
 +      }
-+    } else {
-+      boolfilter = boolfilter.filter((e: any) => !ispodname);
++
++      searchRequest.params.body.query.bool.filter = boolfilter;
 +    }
 +
-+    searchRequest.params.body.query.bool.filter = boolfilter;
-+
      const body = JSON.stringify(searchRequest);
-+
      return from(
        this.deps.http.fetch({
-         method: 'POST',
 diff --git a/src/plugins/data/public/ui/query_string_input/query_bar_top_row.tsx b/src/plugins/data/public/ui/query_string_input/query_bar_top_row.tsx
-index c8a63d819e..a0d12e5734 100644
+index c8a63d819e..238d76997b 100644
 --- a/src/plugins/data/public/ui/query_string_input/query_bar_top_row.tsx
 +++ b/src/plugins/data/public/ui/query_string_input/query_bar_top_row.tsx
 @@ -32,8 +32,9 @@
@@ -1354,14 +1349,19 @@ index c8a63d819e..a0d12e5734 100644
  
    const opensearchDashboards = useOpenSearchDashboards<IDataPluginServices>();
    const { uiSettings, notifications, storage, appName, docLinks } = opensearchDashboards.services;
-@@ -107,7 +111,79 @@ export default function QueryBarTopRow(props: QueryBarTopRowProps) {
+@@ -107,7 +111,81 @@ export default function QueryBarTopRow(props: QueryBarTopRowProps) {
      [appName, queryLanguage, uiSettings, storage]
    );
  
++  const urlStr = window.location.href.split('?')[1];
++  const urlSearchParams = new URLSearchParams(urlStr);
++  const result = Object.fromEntries((urlSearchParams as any).entries());
 +  useEffect(() => {
 +    countTime();
-+    getPodOptions(); // 获取容器云信息
-+    window.location.replace(addParameterToUrl(window.location.href, 'podvalue', ''));
++    if (result.btype === 'awecloudlog_view') {
++      getPodOptions(); // 获取容器云信息
++      window.location.replace(addParameterToUrl(window.location.href, 'podvalue', ''));
++    }
 +  }, []);
 +
 +  const [podOptions, setPodOptions] = useState([]);
@@ -1402,9 +1402,6 @@ index c8a63d819e..a0d12e5734 100644
 +    const origin = window.origin.includes('127.0.0.1')
 +      ? 'https://cloud.wodcloud.com'
 +      : window.origin;
-+    const urlStr = window.location.href.split('?')[1];
-+    const urlSearchParams = new URLSearchParams(urlStr);
-+    const result = Object.fromEntries((urlSearchParams as any).entries());
 +    Axios({
 +      url: `${origin}/awecloud/logApi/drop/search/pod`,
 +      params: {
@@ -1434,7 +1431,7 @@ index c8a63d819e..a0d12e5734 100644
      if (persistedLog && props.query) {
        persistedLog.add(props.query.query);
      }
-@@ -174,7 +250,7 @@ export default function QueryBarTopRow(props: QueryBarTopRowProps) {
+@@ -174,7 +252,7 @@ export default function QueryBarTopRow(props: QueryBarTopRowProps) {
    }
  
    function onSubmit({ query, dateRange }: { query?: Query; dateRange: TimeRange }) {
@@ -1443,7 +1440,7 @@ index c8a63d819e..a0d12e5734 100644
  
      if (props.timeHistory) {
        props.timeHistory.add(dateRange);
-@@ -322,64 +398,121 @@ export default function QueryBarTopRow(props: QueryBarTopRowProps) {
+@@ -322,64 +400,118 @@ export default function QueryBarTopRow(props: QueryBarTopRowProps) {
      );
    }
  
@@ -1599,9 +1596,6 @@ index c8a63d819e..a0d12e5734 100644
 +  }
 +
 +  function download() {
-+    const urlStr = window.location.href.split('?')[1];
-+    const urlSearchParams = new URLSearchParams(urlStr);
-+    const result = Object.fromEntries((urlSearchParams as any).entries());
 +    const time = '(from:' + props.dateRangeFrom + ',to:' + props.dateRangeTo + ')';
 +
 +    const url = `/awecloud/logApi/logHistory/download?time=${time}&query=${result._a}`;
@@ -1618,17 +1612,19 @@ index c8a63d819e..a0d12e5734 100644
    return (
      <EuiFlexGroup
        className={classes}
-@@ -387,9 +520,35 @@ export default function QueryBarTopRow(props: QueryBarTopRowProps) {
+@@ -387,9 +519,37 @@ export default function QueryBarTopRow(props: QueryBarTopRowProps) {
        gutterSize="s"
        justifyContent="flexEnd"
      >
-+      <div style={podStyle}>容器组</div>
-+      <EuiSelect
-+        options={podOptions}
-+        value={podValue}
-+        onChange={(e) => onPodChange(e)}
-+        style={{ margin: '4px 0 0' }}
-+      />
++      {result.btype === 'awecloudlog_view' && <div style={podStyle}>容器组</div>}
++      {result.btype === 'awecloudlog_view' && (
++        <EuiSelect
++          options={podOptions}
++          value={podValue}
++          onChange={(e) => onPodChange(e)}
++          style={{ margin: '4px 0 0' }}
++        />
++      )}
        {renderQueryInput()}
        {renderSharingMetaFields()}
        <EuiFlexItem grow={false}>{renderUpdateButton()}</EuiFlexItem>
@@ -1656,4 +1652,6 @@ index c8a63d819e..a0d12e5734 100644
  }
 -- 
 2.42.0.windows.2
+
+
 
