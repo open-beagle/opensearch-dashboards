@@ -964,24 +964,477 @@ index e283d41c42..0a2eac75db 100644
 2.42.0.windows.2
 
 
-From 612bdba58230fea60e76f1cab9892b92b123ca4e Mon Sep 17 00:00:00 2001
+# From 612bdba58230fea60e76f1cab9892b92b123ca4e Mon Sep 17 00:00:00 2001
+# From: DingYuanzhi <dingyuanzhi@wodcloud.com>
+# Date: Wed, 3 Jan 2024 15:33:17 +0800
+# Subject: [PATCH] =?UTF-8?q?=E5=8E=BB=E9=99=A4Lucene=20syntax=20warning?=
+#  =?UTF-8?q?=E6=8F=90=E7=A4=BA=E6=A1=86?=
+# MIME-Version: 1.0
+# Content-Type: text/plain; charset=UTF-8
+# Content-Transfer-Encoding: 8bit
+
+# ---
+#  .../query_string_input/query_bar_top_row.tsx  | 108 +++++++++---------
+#  1 file changed, 54 insertions(+), 54 deletions(-)
+
+# diff --git a/src/plugins/data/public/ui/query_string_input/query_bar_top_row.tsx b/src/plugins/data/public/ui/query_string_input/query_bar_top_row.tsx
+# index c8a63d819e..99ac9f1be7 100644
+# --- a/src/plugins/data/public/ui/query_string_input/query_bar_top_row.tsx
+# +++ b/src/plugins/data/public/ui/query_string_input/query_bar_top_row.tsx
+# @@ -174,7 +174,7 @@ export default function QueryBarTopRow(props: QueryBarTopRowProps) {
+#    }
+ 
+#    function onSubmit({ query, dateRange }: { query?: Query; dateRange: TimeRange }) {
+# -    handleLuceneSyntaxWarning();
+# +    // handleLuceneSyntaxWarning();
+ 
+#      if (props.timeHistory) {
+#        props.timeHistory.add(dateRange);
+# @@ -322,59 +322,59 @@ export default function QueryBarTopRow(props: QueryBarTopRowProps) {
+#      );
+#    }
+ 
+# -  function handleLuceneSyntaxWarning() {
+# -    if (!props.query) return;
+# -    const { query, language } = props.query;
+# -    if (
+# -      language === 'kuery' &&
+# -      typeof query === 'string' &&
+# -      (!storage || !storage.get('opensearchDashboards.luceneSyntaxWarningOptOut')) &&
+# -      doesKueryExpressionHaveLuceneSyntaxError(query)
+# -    ) {
+# -      const toast = notifications!.toasts.addWarning({
+# -        title: i18n.translate('data.query.queryBar.luceneSyntaxWarningTitle', {
+# -          defaultMessage: 'Lucene syntax warning',
+# -        }),
+# -        text: toMountPoint(
+# -          <div>
+# -            <p>
+# -              <FormattedMessage
+# -                id="data.query.queryBar.luceneSyntaxWarningMessage"
+# -                defaultMessage="It looks like you may be trying to use Lucene query syntax, although you
+# -               have opensearchDashboards Query Language (DQL) selected. Please review the DQL docs {link}."
+# -                values={{
+# -                  link: (
+# -                    <EuiLink href={osdDQLDocs} target="_blank">
+# -                      <FormattedMessage
+# -                        id="data.query.queryBar.syntaxOptionsDescription.docsLinkText"
+# -                        defaultMessage="here"
+# -                      />
+# -                    </EuiLink>
+# -                  ),
+# -                }}
+# -              />
+# -            </p>
+# -            <EuiFlexGroup justifyContent="flexEnd" gutterSize="s">
+# -              <EuiFlexItem grow={false}>
+# -                <EuiButton size="s" onClick={() => onLuceneSyntaxWarningOptOut(toast)}>
+# -                  <FormattedMessage
+# -                    id="data.query.queryBar.luceneSyntaxWarningOptOutText"
+# -                    defaultMessage="Don't show again"
+# -                  />
+# -                </EuiButton>
+# -              </EuiFlexItem>
+# -            </EuiFlexGroup>
+# -          </div>
+# -        ),
+# -      });
+# -    }
+# -  }
+# -
+# -  function onLuceneSyntaxWarningOptOut(toast: Toast) {
+# -    if (!storage) return;
+# -    storage.set('opensearchDashboards.luceneSyntaxWarningOptOut', true);
+# -    notifications!.toasts.remove(toast);
+# -  }
+# +  // function handleLuceneSyntaxWarning() {
+# +  //   if (!props.query) return;
+# +  //   const { query, language } = props.query;
+# +  //   if (
+# +  //     language === 'kuery' &&
+# +  //     typeof query === 'string' &&
+# +  //     (!storage || !storage.get('opensearchDashboards.luceneSyntaxWarningOptOut')) &&
+# +  //     doesKueryExpressionHaveLuceneSyntaxError(query)
+# +  //   ) {
+# +  //     const toast = notifications!.toasts.addWarning({
+# +  //       title: i18n.translate('data.query.queryBar.luceneSyntaxWarningTitle', {
+# +  //         defaultMessage: 'Lucene syntax warning',
+# +  //       }),
+# +  //       text: toMountPoint(
+# +  //         <div>
+# +  //           <p>
+# +  //             <FormattedMessage
+# +  //               id="data.query.queryBar.luceneSyntaxWarningMessage"
+# +  //               defaultMessage="It looks like you may be trying to use Lucene query syntax, although you
+# +  //              have opensearchDashboards Query Language (DQL) selected. Please review the DQL docs {link}."
+# +  //               values={{
+# +  //                 link: (
+# +  //                   <EuiLink href={osdDQLDocs} target="_blank">
+# +  //                     <FormattedMessage
+# +  //                       id="data.query.queryBar.syntaxOptionsDescription.docsLinkText"
+# +  //                       defaultMessage="here"
+# +  //                     />
+# +  //                   </EuiLink>
+# +  //                 ),
+# +  //               }}
+# +  //             />
+# +  //           </p>
+# +  //           <EuiFlexGroup justifyContent="flexEnd" gutterSize="s">
+# +  //             <EuiFlexItem grow={false}>
+# +  //               <EuiButton size="s" onClick={() => onLuceneSyntaxWarningOptOut(toast)}>
+# +  //                 <FormattedMessage
+# +  //                   id="data.query.queryBar.luceneSyntaxWarningOptOutText"
+# +  //                   defaultMessage="Don't show again"
+# +  //                 />
+# +  //               </EuiButton>
+# +  //             </EuiFlexItem>
+# +  //           </EuiFlexGroup>
+# +  //         </div>
+# +  //       ),
+# +  //     });
+# +  //   }
+# +  // }
+# +
+# +  // function onLuceneSyntaxWarningOptOut(toast: Toast) {
+# +  //   if (!storage) return;
+# +  //   storage.set('opensearchDashboards.luceneSyntaxWarningOptOut', true);
+# +  //   notifications!.toasts.remove(toast);
+# +  // }
+ 
+#    const classes = classNames('osdQueryBar', {
+#      'osdQueryBar--withDatePicker': props.showDatePicker,
+# -- 
+# 2.42.0.windows.2
+
+
+
+# From c817fc96301b12e3b996699b2c609b72c6379935 Mon Sep 17 00:00:00 2001
+# From: zhoulimin <15898131481@163.com>
+# Date: Thu, 1 Feb 2024 10:43:19 +0800
+# Subject: [PATCH] =?UTF-8?q?=E4=B8=8B=E8=BD=BD=E5=8A=9F=E8=83=BD?=
+# MIME-Version: 1.0
+# Content-Type: text/plain; charset=UTF-8
+# Content-Transfer-Encoding: 8bit
+
+# ---
+#  .../query_string_input/query_bar_top_row.tsx  | 82 ++++++++++++++++++-
+#  .../data/public/ui/search_bar/search_bar.tsx  |  6 +-
+#  2 files changed, 86 insertions(+), 2 deletions(-)
+
+# diff --git a/src/plugins/data/public/ui/query_string_input/query_bar_top_row.tsx b/src/plugins/data/public/ui/query_string_input/query_bar_top_row.tsx
+# index c8a63d819e..3cf5df38b1 100644
+# --- a/src/plugins/data/public/ui/query_string_input/query_bar_top_row.tsx
+# +++ b/src/plugins/data/public/ui/query_string_input/query_bar_top_row.tsx
+# @@ -32,8 +32,9 @@
+ 
+#  import dateMath from '@elastic/datemath';
+#  import classNames from 'classnames';
+# -import React, { useState } from 'react';
+# +import React, { useState, useEffect } from 'react';
+#  import { i18n } from '@osd/i18n';
+# +import Axios from 'axios';
+ 
+#  import {
+#    EuiButton,
+# @@ -43,7 +44,9 @@ import {
+#    EuiSuperDatePicker,
+#    EuiFieldText,
+#    prettyDuration,
+# +  EuiToolTip,
+#  } from '@elastic/eui';
+# +
+#  // @ts-ignore
+#  import { EuiSuperUpdateButton, OnRefreshProps } from '@elastic/eui';
+#  import { FormattedMessage } from '@osd/i18n/react';
+# @@ -92,6 +95,7 @@ export interface QueryBarTopRowProps {
+#  export default function QueryBarTopRow(props: QueryBarTopRowProps) {
+#    const [isDateRangeInvalid, setIsDateRangeInvalid] = useState(false);
+#    const [isQueryInputFocused, setIsQueryInputFocused] = useState(false);
+# +  const [isDownload, setIsDownload] = useState(true);
+ 
+#    const opensearchDashboards = useOpenSearchDashboards<IDataPluginServices>();
+#    const { uiSettings, notifications, storage, appName, docLinks } = opensearchDashboards.services;
+# @@ -107,7 +111,12 @@ export default function QueryBarTopRow(props: QueryBarTopRowProps) {
+#      [appName, queryLanguage, uiSettings, storage]
+#    );
+ 
+# +  useEffect(() => {
+# +    countTime();
+# +  }, []);
+# +
+#    function onClickSubmitButton(event: React.MouseEvent<HTMLButtonElement>) {
+# +    countTime();
+#      if (persistedLog && props.query) {
+#        persistedLog.add(props.query.query);
+#      }
+# @@ -380,6 +389,58 @@ export default function QueryBarTopRow(props: QueryBarTopRowProps) {
+#      'osdQueryBar--withDatePicker': props.showDatePicker,
+#    });
+ 
+# +  function countTime() {
+# +    if (props.dateRangeTo === 'now' && props.dateRangeFrom?.indexOf('now') !== -1) {
+# +      const arr = props.dateRangeFrom?.split('-');
+# +      const laststr = props.dateRangeFrom?.slice(-1);
+# +
+# +      if (laststr === 'M' || laststr === 'y') {
+# +        setIsDownload(false);
+# +      } else if (laststr === 'w') {
+# +        if (arr && arr[1] !== '1w') {
+# +          setIsDownload(false);
+# +        } else {
+# +          setIsDownload(true);
+# +        }
+# +      } else if (laststr === 'd' && parseInt(arr[1]) > 7) {
+# +        setIsDownload(false);
+# +      } else if (laststr === 'h' && parseInt(arr[1]) > 168) {
+# +        setIsDownload(false);
+# +      } else if (laststr === 'm' && parseInt(arr[1]) > 10080) {
+# +        setIsDownload(false);
+# +      } else if (laststr === 's' && parseInt(arr[1]) > 604800) {
+# +        setIsDownload(false);
+# +      } else {
+# +        setIsDownload(true);
+# +      }
+# +    } else if (props.dateRangeFrom?.indexOf('T') !== -1) {
+# +      const from = new Date(props.dateRangeFrom);
+# +      const to = props.dateRangeTo === 'now' ? new Date() : new Date(props.dateRangeTo);
+# +      const stamp = to.getTime() - from.getTime();
+# +      const hours = Math.floor(stamp / (3600 * 1000));
+# +
+# +      if (hours > 7 * 24) {
+# +        setIsDownload(false);
+# +      } else {
+# +        setIsDownload(true);
+# +      }
+# +    } else {
+# +      setIsDownload(true);
+# +    }
+# +  }
+# +
+# +  function download() {
+# +    const urlStr = window.location.href.split('?')[1];
+# +    const urlSearchParams = new URLSearchParams(urlStr);
+# +    const result = Object.fromEntries((urlSearchParams as any).entries());
+# +    const time = '(from:' + props.dateRangeFrom + ',to:' + props.dateRangeTo + ')';
+# +
+# +    const url = `/awecloud/logApi/logHistory/download?time=${time}&query=${result._a}`;
+# +    const a = document.createElement('a');
+# +    a.setAttribute('download', ''); // download属性
+# +    a.setAttribute('href', url); // href链接
+# +    a.click(); // 自执行点击事件
+# +  }
+#    return (
+#      <EuiFlexGroup
+#        className={classes}
+# @@ -390,6 +451,25 @@ export default function QueryBarTopRow(props: QueryBarTopRowProps) {
+#        {renderQueryInput()}
+#        {renderSharingMetaFields()}
+#        <EuiFlexItem grow={false}>{renderUpdateButton()}</EuiFlexItem>
+# +      {!isDownload && (
+# +        <EuiToolTip position="bottom" content={<p>时间间隔超过7天禁止下载!</p>}>
+# +          <EuiButton iconType="download" fill isDisabled style={{ margin: '4px 0 0' }}>
+# +            {' '}
+# +            下载{' '}
+# +          </EuiButton>
+# +        </EuiToolTip>
+# +      )}
+# +      {isDownload && (
+# +        <EuiButton
+# +          iconType="download"
+# +          fill
+# +          onClick={() => download()}
+# +          style={{ margin: '4px 0 0' }}
+# +        >
+# +          {' '}
+# +          下载{' '}
+# +        </EuiButton>
+# +      )}
+#      </EuiFlexGroup>
+#    );
+#  }
+# -- 
+# 2.43.0
+
+
+
+From 9cc8dcc50613d129f3aff6b878e415e3c4625f61 Mon Sep 17 00:00:00 2001
 From: DingYuanzhi <dingyuanzhi@wodcloud.com>
-Date: Wed, 3 Jan 2024 15:33:17 +0800
-Subject: [PATCH] =?UTF-8?q?=E5=8E=BB=E9=99=A4Lucene=20syntax=20warning?=
- =?UTF-8?q?=E6=8F=90=E7=A4=BA=E6=A1=86?=
+Date: Wed, 6 Mar 2024 11:32:04 +0800
+Subject: [PATCH] =?UTF-8?q?=E6=B7=BB=E5=8A=A0=E5=AE=B9=E5=99=A8=E7=BB=84?=
+ =?UTF-8?q?=E7=AD=9B=E9=80=89?=
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
 ---
- .../query_string_input/query_bar_top_row.tsx  | 108 +++++++++---------
- 1 file changed, 54 insertions(+), 54 deletions(-)
+ .../data/public/search/search_interceptor.ts  |  32 +++
+ .../query_string_input/query_bar_top_row.tsx  | 271 ++++++++++++++----
+ 3 files changed, 249 insertions(+), 58 deletions(-)
 
+ 
+ # Set the value of this setting to true to capture region blocked warnings and errors 
+ # for your map rendering services.
+diff --git a/src/plugins/data/public/search/search_interceptor.ts b/src/plugins/data/public/search/search_interceptor.ts
+index 09731a0b52..c26cb00b26 100644
+--- a/src/plugins/data/public/search/search_interceptor.ts
++++ b/src/plugins/data/public/search/search_interceptor.ts
+@@ -122,7 +122,39 @@ export class SearchInterceptor {
+       `/internal/search/${strategy || OPENSEARCH_SEARCH_STRATEGY}/${id || ''}`,
+       '/'
+     );
++    const urlStr = window.location.href.split('?')[1];
++    const urlSearchParams = new URLSearchParams(urlStr);
++    const result = Object.fromEntries((urlSearchParams as any).entries());
++
++    let boolfilter = searchRequest.params.body.query.bool.filter;
++    let ispodname = false;
++    boolfilter.forEach((e: any) => {
++      if (e.match_phrase && Object.keys(e.match_phrase).includes('fields.podname.keyword')) {
++        ispodname = true;
++      }
++    });
++
++    if (result.podvalue) {
++      if (ispodname) {
++        boolfilter.find(
++          (e: any) =>
++            e.match_phrase && Object.keys(e.match_phrase).includes('fields.podname.keyword')
++        ).match_phrase['fields.podname.keyword'] = result.podvalue;
++      } else {
++        boolfilter.push({
++          match_phrase: {
++            'fields.podname.keyword': result.podvalue,
++          },
++        });
++      }
++    } else {
++      boolfilter = boolfilter.filter((e: any) => !ispodname);
++    }
++
++    searchRequest.params.body.query.bool.filter = boolfilter;
++
+     const body = JSON.stringify(searchRequest);
++
+     return from(
+       this.deps.http.fetch({
+         method: 'POST',
 diff --git a/src/plugins/data/public/ui/query_string_input/query_bar_top_row.tsx b/src/plugins/data/public/ui/query_string_input/query_bar_top_row.tsx
-index c8a63d819e..99ac9f1be7 100644
+index c8a63d819e..a0d12e5734 100644
 --- a/src/plugins/data/public/ui/query_string_input/query_bar_top_row.tsx
 +++ b/src/plugins/data/public/ui/query_string_input/query_bar_top_row.tsx
-@@ -174,7 +174,7 @@ export default function QueryBarTopRow(props: QueryBarTopRowProps) {
+@@ -32,8 +32,9 @@
+ 
+ import dateMath from '@elastic/datemath';
+ import classNames from 'classnames';
+-import React, { useState } from 'react';
++import React, { useState, useEffect } from 'react';
+ import { i18n } from '@osd/i18n';
++import Axios from 'axios';
+ 
+ import {
+   EuiButton,
+@@ -43,9 +44,11 @@ import {
+   EuiSuperDatePicker,
+   EuiFieldText,
+   prettyDuration,
++  EuiToolTip,
+ } from '@elastic/eui';
++
+ // @ts-ignore
+-import { EuiSuperUpdateButton, OnRefreshProps } from '@elastic/eui';
++import { EuiSuperUpdateButton, OnRefreshProps, EuiSelect } from '@elastic/eui';
+ import { FormattedMessage } from '@osd/i18n/react';
+ import { Toast } from 'src/core/public';
+ import { IDataPluginServices, IIndexPattern, TimeRange, TimeHistoryContract, Query } from '../..';
+@@ -92,6 +95,7 @@ export interface QueryBarTopRowProps {
+ export default function QueryBarTopRow(props: QueryBarTopRowProps) {
+   const [isDateRangeInvalid, setIsDateRangeInvalid] = useState(false);
+   const [isQueryInputFocused, setIsQueryInputFocused] = useState(false);
++  const [isDownload, setIsDownload] = useState(true);
+ 
+   const opensearchDashboards = useOpenSearchDashboards<IDataPluginServices>();
+   const { uiSettings, notifications, storage, appName, docLinks } = opensearchDashboards.services;
+@@ -107,7 +111,79 @@ export default function QueryBarTopRow(props: QueryBarTopRowProps) {
+     [appName, queryLanguage, uiSettings, storage]
+   );
+ 
++  useEffect(() => {
++    countTime();
++    getPodOptions(); // 获取容器云信息
++    window.location.replace(addParameterToUrl(window.location.href, 'podvalue', ''));
++  }, []);
++
++  const [podOptions, setPodOptions] = useState([]);
++
++  const [podValue, setPodValue] = useState('');
++
++  const escapeRegExp = (string: any) => {
++    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
++  };
++  const extractValueBetweenAandB = (inputString: any, a: any, b: any) => {
++    const escapedA = escapeRegExp(a);
++    const escapedB = escapeRegExp(b);
++    const regex = new RegExp(`${escapedA}(.*?)${escapedB}`);
++    const match = regex.exec(inputString);
++
++    if (match && match[1]) {
++      return match[1];
++    } else {
++      return '';
++    }
++  };
++  const addParameterToUrl = (url: any, paramName: any, paramValue: any) => {
++    const regex = new RegExp(`([?&])${encodeURIComponent(paramName)}=.*?(&|$)`, 'i');
++    const separator = url.includes('?') ? '&' : '?';
++    if (url.match(regex)) {
++      // 如果参数已经存在，则进行替换
++      return url.replace(
++        regex,
++        `$1${encodeURIComponent(paramName)}=${encodeURIComponent(paramValue)}$2`
++      );
++    } else {
++      // 如果参数不存在，则进行添加
++      return `${url}${separator}${encodeURIComponent(paramName)}=${encodeURIComponent(paramValue)}`;
++    }
++  };
++
++  const getPodOptions = () => {
++    const origin = window.origin.includes('127.0.0.1')
++      ? 'https://cloud.wodcloud.com'
++      : window.origin;
++    const urlStr = window.location.href.split('?')[1];
++    const urlSearchParams = new URLSearchParams(urlStr);
++    const result = Object.fromEntries((urlSearchParams as any).entries());
++    Axios({
++      url: `${origin}/awecloud/logApi/drop/search/pod`,
++      params: {
++        index: extractValueBetweenAandB(result._a, 'index:', ','),
++        workloadname: extractValueBetweenAandB(result._a, 'workloadname:', ')'),
++      },
++    }).then((res) => {
++      const data = res.data.data
++        ? res.data.data.map((e: any) => {
++            return {
++              value: e.value,
++              text: e.label,
++            };
++          })
++        : [];
++      setPodOptions([{ value: '', text: '全部' }, ...data]);
++    });
++  };
++  const onPodChange = (e: any) => {
++    setPodValue(e.target.value);
++    window.location.replace(addParameterToUrl(window.location.href, 'podvalue', e.target.value));
++    onSubmit({ query: props.query, dateRange: getDateRange() });
++  };
++
+   function onClickSubmitButton(event: React.MouseEvent<HTMLButtonElement>) {
++    countTime();
+     if (persistedLog && props.query) {
+       persistedLog.add(props.query.query);
+     }
+@@ -174,7 +250,7 @@ export default function QueryBarTopRow(props: QueryBarTopRowProps) {
    }
  
    function onSubmit({ query, dateRange }: { query?: Query; dateRange: TimeRange }) {
@@ -990,7 +1443,7 @@ index c8a63d819e..99ac9f1be7 100644
  
      if (props.timeHistory) {
        props.timeHistory.add(dateRange);
-@@ -322,59 +322,59 @@ export default function QueryBarTopRow(props: QueryBarTopRowProps) {
+@@ -322,64 +398,121 @@ export default function QueryBarTopRow(props: QueryBarTopRowProps) {
      );
    }
  
@@ -1103,72 +1556,6 @@ index c8a63d819e..99ac9f1be7 100644
  
    const classes = classNames('osdQueryBar', {
      'osdQueryBar--withDatePicker': props.showDatePicker,
--- 
-2.42.0.windows.2
-
-
-
-From c817fc96301b12e3b996699b2c609b72c6379935 Mon Sep 17 00:00:00 2001
-From: zhoulimin <15898131481@163.com>
-Date: Thu, 1 Feb 2024 10:43:19 +0800
-Subject: [PATCH] =?UTF-8?q?=E4=B8=8B=E8=BD=BD=E5=8A=9F=E8=83=BD?=
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-
----
- .../query_string_input/query_bar_top_row.tsx  | 82 ++++++++++++++++++-
- .../data/public/ui/search_bar/search_bar.tsx  |  6 +-
- 2 files changed, 86 insertions(+), 2 deletions(-)
-
-diff --git a/src/plugins/data/public/ui/query_string_input/query_bar_top_row.tsx b/src/plugins/data/public/ui/query_string_input/query_bar_top_row.tsx
-index c8a63d819e..3cf5df38b1 100644
---- a/src/plugins/data/public/ui/query_string_input/query_bar_top_row.tsx
-+++ b/src/plugins/data/public/ui/query_string_input/query_bar_top_row.tsx
-@@ -32,8 +32,9 @@
- 
- import dateMath from '@elastic/datemath';
- import classNames from 'classnames';
--import React, { useState } from 'react';
-+import React, { useState, useEffect } from 'react';
- import { i18n } from '@osd/i18n';
-+import Axios from 'axios';
- 
- import {
-   EuiButton,
-@@ -43,7 +44,9 @@ import {
-   EuiSuperDatePicker,
-   EuiFieldText,
-   prettyDuration,
-+  EuiToolTip,
- } from '@elastic/eui';
-+
- // @ts-ignore
- import { EuiSuperUpdateButton, OnRefreshProps } from '@elastic/eui';
- import { FormattedMessage } from '@osd/i18n/react';
-@@ -92,6 +95,7 @@ export interface QueryBarTopRowProps {
- export default function QueryBarTopRow(props: QueryBarTopRowProps) {
-   const [isDateRangeInvalid, setIsDateRangeInvalid] = useState(false);
-   const [isQueryInputFocused, setIsQueryInputFocused] = useState(false);
-+  const [isDownload, setIsDownload] = useState(true);
- 
-   const opensearchDashboards = useOpenSearchDashboards<IDataPluginServices>();
-   const { uiSettings, notifications, storage, appName, docLinks } = opensearchDashboards.services;
-@@ -107,7 +111,12 @@ export default function QueryBarTopRow(props: QueryBarTopRowProps) {
-     [appName, queryLanguage, uiSettings, storage]
-   );
- 
-+  useEffect(() => {
-+    countTime();
-+  }, []);
-+
-   function onClickSubmitButton(event: React.MouseEvent<HTMLButtonElement>) {
-+    countTime();
-     if (persistedLog && props.query) {
-       persistedLog.add(props.query.query);
-     }
-@@ -380,6 +389,58 @@ export default function QueryBarTopRow(props: QueryBarTopRowProps) {
-     'osdQueryBar--withDatePicker': props.showDatePicker,
    });
  
 +  function countTime() {
@@ -1223,10 +1610,25 @@ index c8a63d819e..3cf5df38b1 100644
 +    a.setAttribute('href', url); // href链接
 +    a.click(); // 自执行点击事件
 +  }
++  const podStyle = {
++    lineHeight: '48px',
++    fontSize: '15px',
++    margin: '0 6px',
++  };
    return (
      <EuiFlexGroup
        className={classes}
-@@ -390,6 +451,25 @@ export default function QueryBarTopRow(props: QueryBarTopRowProps) {
+@@ -387,9 +520,35 @@ export default function QueryBarTopRow(props: QueryBarTopRowProps) {
+       gutterSize="s"
+       justifyContent="flexEnd"
+     >
++      <div style={podStyle}>容器组</div>
++      <EuiSelect
++        options={podOptions}
++        value={podValue}
++        onChange={(e) => onPodChange(e)}
++        style={{ margin: '4px 0 0' }}
++      />
        {renderQueryInput()}
        {renderSharingMetaFields()}
        <EuiFlexItem grow={false}>{renderUpdateButton()}</EuiFlexItem>
@@ -1253,7 +1655,5 @@ index c8a63d819e..3cf5df38b1 100644
    );
  }
 -- 
-2.43.0
-
-
+2.42.0.windows.2
 
